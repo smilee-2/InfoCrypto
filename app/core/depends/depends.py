@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status, Depends
 
 from app.api.models import TokenData
-from app.core.config.config import setting
+from app.core.config.config import setting_token
 from app.core.database import crud
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -34,7 +34,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({'exp': expire})
-    encoded_jwt = jwt.encode(to_encode, setting.SECRET_KEY, algorithm=setting.ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, setting_token.SECRET_KEY, algorithm=setting_token.ALGORITHM)
     return encoded_jwt
 
 
@@ -46,7 +46,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         headers={'WWW-Authenticate': 'Bearer'},
     )
     try:
-        payload = jwt.decode(token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM])
+        payload = jwt.decode(token, setting_token.SECRET_KEY, algorithms=[setting_token.ALGORITHM])
         username = payload.get('sub')
         if username is None:
             raise credentials_exception

@@ -1,27 +1,14 @@
-import os
-
 from aiohttp import ClientSession
-from dotenv import load_dotenv
 
-load_dotenv()
+from app.core.config.config import setting_cmc
 
 
 class HTTPClient:
-    def __init__(self, base_url: str, api: str):
+    def __init__(self, base_url: str, headers: dict):
         self._session = ClientSession(
             base_url=base_url,
-            headers={
-                'Accepts': 'application/json',
-                'X-CMC_PRO_API_KEY': f'{api}',
-            }
+            headers=headers
         )
-        # https://pro-api.coinmarketcap.com
-
-        parameters = {
-            'start': '1',
-            'limit': '5000',
-            'convert': 'USD'
-        }
 
 
 class CMCHTTPClient(HTTPClient):
@@ -39,3 +26,14 @@ class CMCHTTPClient(HTTPClient):
         ) as response:
             result = await response.json()
             return result['data'][str(currency_id)]
+
+
+async def get_obj_cmc() -> CMCHTTPClient:
+    cmc_client = CMCHTTPClient(
+    base_url=setting_cmc.cmc_url,
+    headers={
+        'Accepts': 'application/json',
+        'X-CMC_PRO_API_KEY': f'{setting_cmc.coin_api_key}',
+    }
+    )
+    return cmc_client

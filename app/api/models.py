@@ -18,7 +18,7 @@ class UserInput(Base):
 
 
 # Класс админа
-class AdminModel(Base):
+class AdminModel(UserModel):
     admin: bool
 
 
