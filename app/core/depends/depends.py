@@ -9,25 +9,25 @@ from fastapi import HTTPException, status, Depends
 
 from app.api.models import TokenData
 from app.core.config.config import setting_token
-from app.core.database import crud
+from app.core.database.crud import UsersCrud
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-# Получить хеш пароля
 def get_password_hash(password):
+    """Вернет хеш пароля"""
     return pwd_context.hash(password)
 
 
-# Проверить пароль
 def verify_password(plain_password, hashed_password):
+    """Проверит пароль пользователя"""
     return pwd_context.verify(plain_password, hashed_password)
 
 
-# Создать токен
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    """Создаст и вернет jwt токен"""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -38,8 +38,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-# Проверить пользователя
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    """Проверит текущего пользователя"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Could not validate credentials',
@@ -54,7 +54,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     except InvalidTokenError as e:
         print('token bad(', e)
         raise credentials_exception
-    user = crud.get_user_by_name(username=token_data.username, )
+    user = UsersCrud.get_user_by_username(username=token_data.username, )
     if user is None:
         raise credentials_exception
     return user

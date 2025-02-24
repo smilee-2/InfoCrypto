@@ -29,6 +29,7 @@ class CMCHTTPClient(HTTPClient):
 
 
 async def get_obj_cmc() -> CMCHTTPClient:
+    """Вернет объект класса CMCHTTPClient"""
     cmc_client = CMCHTTPClient(
     base_url=setting_cmc.cmc_url,
     headers={

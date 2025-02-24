@@ -6,7 +6,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class User(Base):
+class UserSchemas(Base):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -16,14 +16,14 @@ class User(Base):
     disabled: Mapped[bool] = mapped_column(unique=True, nullable=True)
     root: Mapped[str] = mapped_column(unique=True, nullable=True)
 
-    coins: Mapped[list['CoinsFavorites']] = relationship(back_populates='user')
+    coins: Mapped[list['CoinsFavoritesSchemas']] = relationship(back_populates='user')
 
 
-class CoinsFavorites(Base):
+class CoinsFavoritesSchemas(Base):
     __tablename__ = 'favorites'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     coin_name: Mapped[str] = mapped_column(unique=True, nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
-    user: Mapped['User'] = relationship(back_populates='coins')
+    user: Mapped['UserSchemas'] = relationship(back_populates='coins')
