@@ -9,7 +9,7 @@ from fastapi import HTTPException, status, Depends
 
 from app.api.models import TokenData
 from app.core.config.config import setting_token
-from app.core.database.crud import UsersCrud
+from app.core.database.crud import UserCrud
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
@@ -52,9 +52,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
             raise credentials_exception
         token_data = TokenData(username=username)
     except InvalidTokenError as e:
-        print('token bad(', e)
         raise credentials_exception
-    user = UsersCrud.get_user_by_username(username=token_data.username, )
+    user = await UserCrud.get_user_by_username(username=token_data.username, )
     if user is None:
         raise credentials_exception
     return user

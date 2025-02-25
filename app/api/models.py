@@ -1,26 +1,18 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 
 class Base(BaseModel):
     pass
+
 
 # Класс для валидации пользователей
 class UserModel(Base):
     email: EmailStr
     username: str
     password: str
-    disabled: bool | None = None
-
-
-# Класс для валидации запроса gpt
-class UserInput(Base):
-    user_input: str
-
-
-# Класс админа
-class AdminModel(UserModel):
-    admin: bool
-
+    disabled: bool = False
+    root: str = 'basic'
+    model_config = ConfigDict(from_attributes=True)
 
 # Класс для валидации токена
 class Token(Base):
