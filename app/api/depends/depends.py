@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status, Depends
 
-from app.api.models import TokenData
+from app.api.models import TokenData, UserModel
 from app.core.config.config import setting_token
 from app.core.database.crud import UserCrud
 
@@ -38,7 +38,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserModel:
     """Проверит текущего пользователя"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -56,4 +56,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     user = await UserCrud.get_user_by_username(username=token_data.username, )
     if user is None:
         raise credentials_exception
+    elif user.disabled:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='user disabled')
     return user

@@ -13,7 +13,7 @@ class UserSchemas(Base):
     email: Mapped[str] = mapped_column(unique=True, nullable=True)
     username: Mapped[int] = mapped_column(unique=True, nullable=True)
     password: Mapped[str] = mapped_column(unique=True, nullable=True)
-    disabled: Mapped[bool] = mapped_column(unique=True, nullable=True)
+    disabled: Mapped[bool] = mapped_column(nullable=True)
     root: Mapped[str] = mapped_column(unique=True, nullable=True)
 
     coins: Mapped[list['CoinsFavoritesSchemas']] = relationship(back_populates='user')

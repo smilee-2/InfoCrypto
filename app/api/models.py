@@ -12,6 +12,14 @@ class UserModel(Base):
     password: str
     disabled: bool = False
     root: str = 'basic'
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CoinModel(Base):
+    coin_name: str
+    user_id: int
+
     model_config = ConfigDict(from_attributes=True)
 
 # Класс для валидации токена

@@ -7,17 +7,17 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.api.models import UserModel, Token
 from app.core.config.config import setting_token
 from app.core.database.crud import UserCrud
-from app.core.depends.depends import get_password_hash, verify_password, create_access_token
+from app.api.depends.depends import get_password_hash, verify_password, create_access_token
 
 router = APIRouter(prefix='/auth', tags=['Auth'])
 
 
 @router.post('/register')
-async def register_new_user(user: UserModel = Depends()):
+async def register_new_user(user: UserModel = Depends()) -> dict[str, str]:
     """эндпоинт для регистрации"""
     hashed_password = get_password_hash(user.password)
     user.password = hashed_password
-    return await UserCrud.create_user(user=user)
+    return await UserCrud.create_user(user_input=user)
 
 
 @router.post("/token")
@@ -31,7 +31,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     user = await UserCrud.get_user_by_username(form_data.username)
     if not user:
         raise user_except
-    print(form_data.password, ':::', user.password)
+
     check_password = verify_password(form_data.password, user.password)
     if not check_password:
         raise user_except
