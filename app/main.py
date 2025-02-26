@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Annotated
 
 import uvicorn
-from fastapi import FastAPI, Request, Depends, HTTPException, status
+from fastapi import FastAPI, Request, Response,Depends, HTTPException, status
 from fastapi.templating import Jinja2Templates
 
 from api import router_auth, router_admin, router_coins, router_users
@@ -58,4 +58,4 @@ async def admin_page(request: Request, admin: Annotated[UserRootModel, Depends(d
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='not admin')
 
 if __name__ == '__main__':
-    uvicorn.run('main:app')
+    uvicorn.run('main:app', host='0.0.0.0')

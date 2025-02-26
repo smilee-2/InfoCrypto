@@ -191,8 +191,15 @@
                     const data = await response.json();
                     // Assuming the token is in data.access_token
                     localStorage.setItem('token', data.access_token);
-                    window.location.href = '/main_page';
-                    showMainPage();
+                    const token = localStorage.getItem('token');
+
+                        if (token) {
+                            document.cookie = `Bearer=${token}; path=/;`; //  httpOnly: false is not possible with JS
+                            window.location.href = '/user_page';
+                        } else {
+                            alert('Not authenticated. Please login.');
+                        }
+
                 } else {
                     errorDiv.textContent = 'Invalid credentials';
                 }
@@ -242,12 +249,6 @@ async function register() {
         function logout() {
             localStorage.removeItem('token');
             showAuthForm();
-        }
-
-        function showMainPage() {
-            authContainer.style.display = 'none';
-            registerContainer.style.display = 'none';
-            mainPage.style.display = 'block';
         }
 
         function showAuthForm() {
