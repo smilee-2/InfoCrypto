@@ -191,6 +191,7 @@
                     const data = await response.json();
                     // Assuming the token is in data.access_token
                     localStorage.setItem('token', data.access_token);
+                    window.location.href = '/main_page';
                     showMainPage();
                 } else {
                     errorDiv.textContent = 'Invalid credentials';

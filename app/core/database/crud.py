@@ -3,12 +3,12 @@ from pydantic import EmailStr
 
 from app.core.config.config import session_maker
 from app.core.database.schemas import UserSchemas, CoinsFavoritesSchemas
-from app.api.models import UserModel, CoinModel, UserConModel
+from app.api.models import UserModel, CoinModel, UserRootModel
 
 
 class UserCrud:
     @staticmethod
-    async def create_user(user_input: UserConModel) -> dict[str, str]:
+    async def create_user(user_input: UserRootModel) -> dict[str, str]:
         """Функция добавит нового пользователя в БД"""
         async with session_maker.begin() as session:
             user = UserSchemas(**user_input.model_dump())
@@ -16,21 +16,21 @@ class UserCrud:
             return {'message': 'user was created'}
 
     @staticmethod
-    async def get_user_by_id(user_id: int) -> UserModel | None:
+    async def get_user_by_id(user_id: int) -> UserRootModel | None:
         """Вернет пользователя по id"""
         async with session_maker.begin() as session:
             user = await session.get(UserSchemas, user_id)
-            return UserModel.model_validate(user)
+            return UserRootModel.model_validate(user)
 
     @staticmethod
-    async def get_user_by_username(username: str) -> UserModel | dict[str, str]:
+    async def get_user_by_username(username: str) -> UserRootModel | dict[str, str]:
         """Получение пользователя по имени"""
         async with session_maker.begin() as session:
             query = select(UserSchemas).where(UserSchemas.username == username)
             result = await session.execute(query)
             user = result.scalar_one_or_none()
             if user:
-                return UserModel.model_validate(user)
+                return UserRootModel.model_validate(user)
             return {'message': 'user not found'}
 
     @staticmethod
@@ -45,13 +45,13 @@ class UserCrud:
             return None
 
     @staticmethod
-    async def get_all_users() -> list[UserModel]:
+    async def get_all_users() -> list[UserRootModel]:
         """Вернет всех пользователей"""
         async with session_maker.begin() as session:
             query = select(UserSchemas)
             result = await session.execute(query)
             users = result.scalars().all()
-            return [UserModel.model_validate(user) for user in users]
+            return [UserRootModel.model_validate(user) for user in users]
 
     @staticmethod
     async def delete_user(username: str) -> dict[str, str]:

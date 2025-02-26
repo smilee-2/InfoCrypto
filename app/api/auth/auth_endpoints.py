@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.depends import depends
-from app.api.models import UserModel, Token, UserConModel
+from app.api.models import UserModel, Token, UserRootModel
 from app.core.config.config import setting_token
 from app.core.database.crud import UserCrud
 from app.api.depends.depends import get_password_hash, verify_password, create_access_token
@@ -16,14 +16,14 @@ router = APIRouter(prefix='/auth', tags=['Auth'])
 @router.post('/register')
 async def register_new_user(user: UserModel = Depends()) -> dict[str, str]:
     """эндпоинт для регистрации"""
-    user_ = UserConModel(**user.model_dump())
+    user_ = UserRootModel(**user.model_dump())
     hashed_password = get_password_hash(user.password)
     user_.password = hashed_password
     return await UserCrud.create_user(user_input=user_)
 
 
 @router.post('/create_admin')
-async def create_admin(admin_root: Annotated[UserConModel, Depends(depends.get_current_user)], admin: UserConModel = Depends()) -> dict[str, str]:
+async def create_admin(admin_root: Annotated[UserRootModel, Depends(depends.get_current_user)], admin: UserRootModel = Depends()) -> dict[str, str]:
     """эндпоинт для регистрации админа"""
     hashed_password = get_password_hash(admin.password)
     admin.password = hashed_password

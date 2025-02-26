@@ -254,9 +254,19 @@
            alert('Please log in to view this page.');
         }
 
-        function goToProfile() {
-            // Implement profile navigation here
-            alert("Going to profile page (not implemented yet)");
+function goToProfile() {
+             const token = localStorage.getItem('token');
+
+            if (token) {
+                 window.location.href = '/user_page';
+                // This will be on the /user_page, not in this page.
+
+            } else {
+                alert('Not authenticated. Please login.');
+                authContainer.style.display = 'block';
+                mainPage.style.display = 'none';
+                registerContainer.style.display = 'none';
+            }
         }
     </script>
 

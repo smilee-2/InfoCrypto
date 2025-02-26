@@ -3,14 +3,14 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Depends, status
 
 from ..models import UserModel
-from app.core.database.crud import UserCrud, UserConModel
+from app.core.database.crud import UserCrud, UserRootModel
 from app.api.depends import depends
 
 router = APIRouter(prefix='/admin', tags=['Admin'])
 
 
 @router.get('/get_user_by_id/{user_id}')
-async def get_user_by_id(user_id: int, admin: Annotated[UserConModel, Depends(depends.get_current_user)]) -> UserModel:
+async def get_user_by_id(user_id: int, admin: Annotated[UserRootModel, Depends(depends.get_current_user)]) -> UserModel:
     """эндпоинт вернет пользователя по id"""
     if admin.root == 'admin':
         return await UserCrud.get_user_by_id(user_id=user_id)
@@ -19,7 +19,7 @@ async def get_user_by_id(user_id: int, admin: Annotated[UserConModel, Depends(de
 
 @router.get('/get_user_by_username/{username}')
 async def get_user_by_username(username: str,
-                               admin: Annotated[UserConModel, Depends(depends.get_current_user)]) -> UserModel:
+                               admin: Annotated[UserRootModel, Depends(depends.get_current_user)]) -> UserModel:
     """эндпоинт вернет пользователя по имени"""
     if admin.root == 'admin':
         return await UserCrud.get_user_by_username(username=username)
@@ -27,7 +27,7 @@ async def get_user_by_username(username: str,
 
 
 @router.get('/get_all_users')
-async def get_all_users(admin: Annotated[UserConModel, Depends(depends.get_current_user)]) -> list:
+async def get_all_users(admin: Annotated[UserRootModel, Depends(depends.get_current_user)]) -> list:
     """эндпоинт вернет всех пользователей"""
     if admin.root == 'admin':
         return await UserCrud.get_all_users()
@@ -35,7 +35,7 @@ async def get_all_users(admin: Annotated[UserConModel, Depends(depends.get_curre
 
 
 @router.patch('/disable_user/{username}')
-async def disable_user(username: str, admin: Annotated[UserConModel, Depends(depends.get_current_user)]) -> dict[str, str]:
+async def disable_user(username: str, admin: Annotated[UserRootModel, Depends(depends.get_current_user)]) -> dict[str, str]:
     """эндпоинт заблокирует пользователя"""
     if admin.root == 'admin':
         return await UserCrud.disable_user(username=username)
@@ -43,7 +43,7 @@ async def disable_user(username: str, admin: Annotated[UserConModel, Depends(dep
 
 
 @router.patch('/enable_user/{username}')
-async def enable_user(username: str, admin: Annotated[UserConModel, Depends(depends.get_current_user)]) -> dict[str, str]:
+async def enable_user(username: str, admin: Annotated[UserRootModel, Depends(depends.get_current_user)]) -> dict[str, str]:
     """эндпоинт разблокирует пользователя"""
     if admin.root == 'admin':
         return await UserCrud.enable_user(username=username)
@@ -51,7 +51,7 @@ async def enable_user(username: str, admin: Annotated[UserConModel, Depends(depe
 
 
 @router.delete('/delete_user/{username}')
-async def delete_user(username: str, admin: Annotated[UserConModel, Depends(depends.get_current_user)]) -> dict[str, str]:
+async def delete_user(username: str, admin: Annotated[UserRootModel, Depends(depends.get_current_user)]) -> dict[str, str]:
     """эндпоинт удалит пользователя"""
     if admin.root == 'admin':
         try:

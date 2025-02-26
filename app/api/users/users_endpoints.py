@@ -18,8 +18,8 @@ async def patch_user_email(new_email: EmailStr, user: Annotated[UserModel, Depen
 
 
 @router.patch('/patch_user_password')
-async def patch_user_password(password: str, new_password: str, user: Annotated[UserModel, Depends(
-    depends.get_current_user)]) -> dict[str, str]:
+async def patch_user_password(password: str, new_password: str, user: Annotated[UserModel,
+    Depends(depends.get_current_user)]) -> dict[str, str]:
     """эндпоинт обновит пароль пользователя"""
     user = await UserCrud.get_user_by_username(username=user.username)
     hash_new_password = get_password_hash(new_password)

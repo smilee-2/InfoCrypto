@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status, Depends
 
-from app.api.models import TokenData, UserModel
+from app.api.models import TokenData, UserModel, UserRootModel
 from app.core.config.config import setting_token
 from app.core.database.crud import UserCrud
 
@@ -38,7 +38,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserModel:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserRootModel:
     """Проверит текущего пользователя"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
