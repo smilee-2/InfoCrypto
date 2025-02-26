@@ -10,6 +10,10 @@ class UserModel(Base):
     email: EmailStr
     username: str
     password: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+class UserConModel(UserModel):
     disabled: bool = False
     root: str = 'basic'
 

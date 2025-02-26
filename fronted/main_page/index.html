@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Dashboard</title>
+    <style>
+        /* General Styles (Same as Before) */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0F172A; /* Deeper Darker background */
+            color: #CBD5E0; /* Light text color */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        a {
+            color: #93C5FD;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #60A5FA;
+        }
+
+        /* Main Page Styles */
+        #mainPage {
+            display: block; /* Always display */
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Top Menu */
+        .top-menu {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .top-menu button {
+            width: auto;
+            padding: 8px 16px;
+            margin-left: 10px;
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .top-menu button:hover {
+            background-color: #60A5FA;
+        }
+
+        /* Crypto Cards */
+        .crypto-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* Center the cards horizontally */
+            gap: 20px;
+        }
+
+        .crypto-card {
+            background-color: rgba(30, 41, 59, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 250px;
+            text-align: left;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .crypto-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #CBD5E0;
+        }
+
+        .crypto-card p {
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        /* Search Input */
+        .search-input {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .search-input input {
+            width: 200px;
+            margin-right: 10px;
+            padding: 12px;
+            border: 2px solid #475569;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: #334155;
+            color: #CBD5E0;
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+        }
+
+         .search-input input:focus {
+            outline: none;
+            border-color: #60A5FA;
+            box-shadow: 0 0 5px rgba(96, 165, 250, 0.5);
+        }
+
+
+        .search-input button {
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 12px 20px;
+            transition: background-color 0.3s;
+        }
+
+        .search-input button:hover {
+            background-color: #60A5FA;
+        }
+
+
+        /* Heading  */
+        h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #94A3B8;
+            text-align: center; /* Center main title */
+        }
+
+        /* Responsive Design  */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .crypto-cards {
+                flex-direction: column;
+                align-items: center;
+            }
+            .crypto-card {
+                width: 90%;
+            }
+             .top-menu {
+                flex-direction: column;
+                align-items: flex-end; /* Align items to the right */
+            }
+            .top-menu button {
+                margin-left: 0; /* Remove left margin */
+                margin-top: 10px; /* Add top margin */
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="mainPage">
+        <div class="top-menu">
+            <button onclick="goToProfile()">Profile</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <h2>Top 100 Cryptocurrencies</h2>
+
+        <div class="search-input">
+            <input type="number" id="cryptoId" placeholder="Search by ID">
+            <button onclick="searchCrypto()">Search</button>
+        </div>
+
+        <div class="crypto-cards" id="cryptoCards">
+            <!-- Crypto cards will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        const cryptoCardsContainer = document.getElementById('cryptoCards'); // Added
+        let cryptoData = []; // Store fetched data
+
+        // Check if user is logged in
+        if (!localStorage.getItem('token')) {
+           //Replace the alert to something else.
+            alert('Please log in to view this page.');
+            //In real life, you should have a page for login.
+            //window.location.href = '/login';  // Redirect to login page (replace '/login' with your actual login page URL)
+        } else {
+            document.getElementById('mainPage').style.display = 'block'; //Show main page
+            fetchTop100Coins(); // Fetch data when main page is shown
+        }
+
+        // Function to fetch top 100 coins
+        async function fetchTop100Coins() {
+            // Simulate fetching data from API
+            setTimeout(() => {
+                const fakeData = [
+                    { id: 1, name: "Bitcoin", symbol: "BTC", price: "$50,000" },
+                    { id: 2, name: "Ethereum", symbol: "ETH", price: "$3,000" },
+                    { id: 3, name: "Litecoin", symbol: "LTC", price: "$200" },
+                    { id: 4, name: "Ripple", symbol: "XRP", price: "$1" },
+                    { id: 5, name: "Cardano", symbol: "ADA", price: "$2" },
+                    // ... add more dummy data to reach 100
+                ];
+
+                cryptoData = fakeData; // Store fetched data
+                displayCryptoCards(fakeData);
+            }, 500);
+        }
+
+        // Function to display crypto cards
+        function displayCryptoCards(data) {
+            cryptoCardsContainer.innerHTML = ""; // Clear existing cards
+
+            data.forEach(crypto => {
+                const card = document.createElement("div");
+                card.className = "crypto-card";
+                card.innerHTML = `
+                    <h3>${crypto.name} (${crypto.symbol})</h3>
+                    <p>Price: ${crypto.price}</p>
+                    <p>ID: ${crypto.id}</p>
+                `;
+                cryptoCardsContainer.appendChild(card);
+            });
+        }
+
+        // Function to search crypto by ID
+        function searchCrypto() {
+            const cryptoId = document.getElementById("cryptoId").value;
+            if (cryptoId) {
+                const foundCrypto = cryptoData.find(crypto => crypto.id === parseInt(cryptoId));
+                if (foundCrypto) {
+                    displayCryptoCards([foundCrypto]); // Display only the found crypto
+                } else {
+                    alert("Crypto not found!");
+                }
+            } else {
+                displayCryptoCards(cryptoData); // Display all cryptos if search is empty
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            //In real life, you should have a page for login.
+           // window.location.href = '/login';  // Redirect to login page (replace '/login' with your actual login page URL)
+           alert('Please log in to view this page.');
+        }
+
+        function goToProfile() {
+            // Implement profile navigation here
+            alert("Going to profile page (not implemented yet)");
+        }
+    </script>
+
+</body>
+</html>

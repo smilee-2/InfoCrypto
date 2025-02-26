@@ -3,12 +3,12 @@ from pydantic import EmailStr
 
 from app.core.config.config import session_maker
 from app.core.database.schemas import UserSchemas, CoinsFavoritesSchemas
-from app.api.models import UserModel, CoinModel
+from app.api.models import UserModel, CoinModel, UserConModel
 
 
 class UserCrud:
     @staticmethod
-    async def create_user(user_input: UserModel) -> dict[str, str]:
+    async def create_user(user_input: UserConModel) -> dict[str, str]:
         """Функция добавит нового пользователя в БД"""
         async with session_maker.begin() as session:
             user = UserSchemas(**user_input.model_dump())
