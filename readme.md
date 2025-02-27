@@ -10,7 +10,7 @@ ____
  - Есть простая авторизация через jwt токены
  - Простая админка позволяющая управлять пользователями
 ___
-### <p style="text-align: center;"> Энпоинты
+### <p style="text-align: center;"> Endpoints
 
 <p align="center">
   <img width="800" height="600" src="endpoints.png">
