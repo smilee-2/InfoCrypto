@@ -27,3 +27,12 @@ class CoinsFavoritesSchemas(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
     user: Mapped['UserSchemas'] = relationship(back_populates='coins')
+
+
+class TokenInfoSchemas(Base):
+    __tablename__ = "tokens"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    refresh_token: Mapped[str] = mapped_column(unique=True, nullable=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+    #expires_at: Mapped[]
+

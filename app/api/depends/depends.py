@@ -16,23 +16,35 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_password_hash(password):
+def get_password_hash(password) -> str:
     """Вернет хеш пароля"""
     return pwd_context.hash(password)
 
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password, hashed_password) -> bool:
     """Проверит пароль пользователя"""
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    """Создаст и вернет jwt токен"""
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    """Создаст и вернет access jwt токен"""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({'exp': expire})
+    encoded_jwt = jwt.encode(to_encode, setting_token.SECRET_KEY, algorithm=setting_token.ALGORITHM)
+    return encoded_jwt
+
+# TODO
+def create_refresh_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    """Создаст и вернет refresh jwt токен"""
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(days=7)
     to_encode.update({'exp': expire})
     encoded_jwt = jwt.encode(to_encode, setting_token.SECRET_KEY, algorithm=setting_token.ALGORITHM)
     return encoded_jwt

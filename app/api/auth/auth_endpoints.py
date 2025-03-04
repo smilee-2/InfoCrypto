@@ -8,7 +8,7 @@ from app.api.depends import depends
 from app.api.models import UserModel, Token, UserRootModel
 from app.core.config.config import setting_token
 from app.core.database.crud import UserCrud
-from app.api.depends.depends import get_password_hash, verify_password, create_access_token
+from app.api.depends.depends import get_password_hash, verify_password, create_access_token, create_refresh_token
 
 router = APIRouter(prefix='/auth', tags=['Auth'])
 
@@ -46,7 +46,6 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     if not check_password:
         raise user_except
     access_token_expires = timedelta(minutes=setting_token.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={'sub': user.username}, expires_delta=access_token_expires
-    )
-    return Token(access_token=access_token, token_type='bearer')
+    access_token = create_access_token(data={'sub': user.username}, expires_delta=access_token_expires)
+    refresh_token = create_refresh_token()
+    return Token(access_token=access_token, refresh_token=refresh_token)

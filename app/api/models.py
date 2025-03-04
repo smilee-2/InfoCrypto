@@ -30,7 +30,8 @@ class CoinModel(Base):
 # Класс для валидации токена
 class Token(Base):
     access_token: str
-    token_type: str
+    refresh_token: str
+    token_type: str = 'Bearer'
 
 
 #

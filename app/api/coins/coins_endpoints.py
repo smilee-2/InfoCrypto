@@ -30,3 +30,8 @@ async def add_coin_to_favorites(currency_id: int, user: Annotated[UserModel, Dep
     coin_dict = await cmc.get_currency(currency_id=currency_id)
     user_id = await UserCrud.get_user_id(username=user.username)
     return await CoinsCrud.add_coin(coin_input=coin_dict, user_id=user_id)
+
+# TODO
+@router.delete('/delete_coin_from_favorites/{currency_id}')
+async def delete_coin_from_favorites() -> dict[str, str]:
+    ...
