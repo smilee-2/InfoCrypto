@@ -14,18 +14,20 @@ class HTTPClient:
 class CMCHTTPClient(HTTPClient):
     async def get_listing(self):
         """Вернет список всех активных криптовалют с последними рыночными данными."""
-        async with self._session.get('/v1/cryptocurrency/listings/latest') as response:
-            result = await response.json()
-            return result['data']
+        async with self._session as session:
+            async with session.get('/v1/cryptocurrency/listings/latest') as response:
+                result = await response.json()
+        return result['data']
 
     async def get_currency(self, currency_id: int):
         """Вернет последнюю рыночную котировку для 1 криптовалюты."""
-        async with self._session.get(
-                url='/v2/cryptocurrency/quotes/latest',
-                params={'id': currency_id}
-        ) as response:
-            result = await response.json()
-            return result['data'][str(currency_id)]
+        async with self._session as session:
+            async with session.get(
+                    url='/v2/cryptocurrency/quotes/latest',
+                    params={'id': currency_id}
+            ) as response:
+                result = await response.json()
+        return result['data'][str(currency_id)]
 
 
 async def get_obj_cmc() -> CMCHTTPClient:

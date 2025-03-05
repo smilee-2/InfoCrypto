@@ -3,12 +3,13 @@ from pathlib import Path
 from typing import Annotated
 
 import uvicorn
-from fastapi import FastAPI, Request, Response,Depends, HTTPException, status
+from fastapi import FastAPI, Request, Depends
+from fastapi.security import HTTPBearer
 from fastapi.templating import Jinja2Templates
 
 from api import router_auth, router_admin, router_coins, router_users
 from app.api.depends import depends
-from app.api.models import UserModel, UserRootModel
+from app.api.models import UserModel
 from core.config.config import engine
 from core.database.schemas import Base
 
@@ -19,8 +20,9 @@ async def lifespan(app: FastAPI):
         await connection.run_sync(Base.metadata.create_all)
     yield
 
+http_bearer = HTTPBearer(auto_error=False)
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, dependencies=[Depends(http_bearer)])
 app.include_router(router_auth)
 app.include_router(router_admin)
 app.include_router(router_coins)

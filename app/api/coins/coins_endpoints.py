@@ -33,5 +33,6 @@ async def add_coin_to_favorites(currency_id: int, user: Annotated[UserModel, Dep
 
 # TODO
 @router.delete('/delete_coin_from_favorites/{currency_id}')
-async def delete_coin_from_favorites() -> dict[str, str]:
+async def delete_coin_from_favorites(currency_id: int, user: Annotated[UserModel, Depends(depends.get_current_user)]) -> dict[str, str]:
+    """удалит монету из избранного"""
     ...

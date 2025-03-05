@@ -3,7 +3,7 @@ from pydantic import EmailStr
 
 from app.core.config.config import session_maker
 from app.core.database.schemas import UserSchemas, CoinsFavoritesSchemas
-from app.api.models import UserModel, CoinModel, UserRootModel
+from app.api.models import UserRootModel
 
 
 class UserCrud:
