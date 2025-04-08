@@ -25,7 +25,7 @@ class SettingToken(BaseSettings):
     SECRET_KEY: str = os.getenv('SECRET_KEY')
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRECH_TOKEN_EXPIRE_DAYS: int = 7
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
 
 setting_db= SettingDatabase()

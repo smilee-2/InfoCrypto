@@ -2,13 +2,12 @@ from typing import Annotated
 from datetime import timedelta, datetime, timezone
 
 import jwt
-from aiohttp import payload_type
 from jwt import InvalidTokenError
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status, Depends
 
-from app.api.models import TokenData, UserRootModel
+from app.api.models import UserRootModel
 from app.core.config.config import setting_token
 from app.core.database.crud import UserCrud
 
@@ -68,11 +67,10 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
         username = payload.get('sub')
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+
     except InvalidTokenError:
         raise credentials_exception
-
-    user = await UserCrud.get_user_by_username(username=token_data.username, )
+    user = await UserCrud.get_user_by_username(username=username)
     if user is None:
         raise credentials_exception
     elif user.disabled:

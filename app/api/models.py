@@ -33,7 +33,3 @@ class Token(Base):
     refresh_token: str
     token_type: str = 'Bearer'
 
-
-#
-class TokenData(Base):
-    username: str | None = None
