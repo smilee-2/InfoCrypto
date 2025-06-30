@@ -7,11 +7,11 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.security import HTTPBearer
 from fastapi.templating import Jinja2Templates
 
-from api import router_auth, router_admin, router_coins, router_users
+from app.api import router_auth, router_admin, router_coins, router_users
 from app.api.depends import depends
 from app.api.models import UserModel
-from core.config.config import engine
-from core.database.schemas import Base
+from app.core.config.config import engine
+from app.core.database.schemas import Base
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,4 +39,4 @@ async def main_page(request: Request, user: Annotated[UserModel, Depends(depends
 
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', host='0.0.0.0')
+    uvicorn.run('main:app', host='localhost')

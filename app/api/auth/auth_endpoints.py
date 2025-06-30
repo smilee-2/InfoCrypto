@@ -52,7 +52,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         raise user_except
 
     access_token_expires = timedelta(minutes=setting_token.ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token_expire = timedelta(days=setting_token.REFRECH_TOKEN_EXPIRE_DAYS)
+    refresh_token_expire = timedelta(days=setting_token.REFRESH_TOKEN_EXPIRE_DAYS)
 
     access_token = create_access_token(data={'sub': user.username, 'type': 'access'},
                                        expires_delta=access_token_expires)

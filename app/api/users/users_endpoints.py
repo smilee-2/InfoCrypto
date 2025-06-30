@@ -11,7 +11,7 @@ from app.api.depends import depends
 router = APIRouter(prefix='/users', tags=['User'])
 
 
-@router.patch('/patch_user_email/{new_email}')
+@router.patch('/patch_user_email')
 async def patch_user_email(new_email: EmailStr, user: Annotated[UserModel, Depends(depends.get_current_user)]) -> dict[str, str]:
     """эндпоинт обновит email пользователя"""
     return await UserCrud.patch_user_email(email=user.email, new_email=new_email)
