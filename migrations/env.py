@@ -8,20 +8,21 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from app.core.config.config import setting_db
-from app.core.database.schemas import Base, UserSchemas
+from app.core.database.schemas import Base, TokenInfoSchemas #noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option(
-    'sqlalchemy.url',
-    setting_db.db_url
-)
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+config.set_main_option(
+    "sqlalchemy.url",
+    setting_db.database_url_asyncpg
+)
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
@@ -59,7 +60,7 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata, compare_server_default=True)
+    context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
         context.run_migrations()

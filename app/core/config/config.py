@@ -1,17 +1,23 @@
 import os
-from pathlib import Path
-
+import asyncio
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-BASE_DIR = Path(__file__).parent.parent.parent.parent
 load_dotenv()
 
 class SettingDatabase(BaseSettings):
     # for database
-    db_url: str = f"sqlite+aiosqlite:///{BASE_DIR}/database/database.db"
-    db_echo: bool = True
+    DB_USER: str = os.getenv("DB_USER")
+    DB_PASS: str = os.getenv("DB_PASS")
+    DB_HOST: str = os.getenv("DB_HOST")
+    DB_PORT: int = int(os.getenv("DB_PORT"))
+    DB_NAME: str = os.getenv("DB_NAME")
+    echo: bool = False
+
+    @property
+    def database_url_asyncpg(self):
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
 class SettingCMC(BaseSettings):
@@ -33,8 +39,8 @@ setting_cmc = SettingCMC()
 setting_token = SettingToken()
 
 engine = create_async_engine(
-    url=setting_db.db_url,
-    echo=setting_db.db_echo
+    url=setting_db.database_url_asyncpg,
+    echo=setting_db.echo
 )
 
 session_maker = async_sessionmaker(engine, expire_on_commit=False)

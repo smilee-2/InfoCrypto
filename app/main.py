@@ -10,14 +10,9 @@ from fastapi.templating import Jinja2Templates
 from app.api import router_auth, router_admin, router_coins, router_users
 from app.api.depends import depends
 from app.api.models import UserModel
-from app.core.config.config import engine
-from app.core.database.schemas import Base
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as connection:
-        #await connection.run_sync(Base.metadata.drop_all)
-        await connection.run_sync(Base.metadata.create_all)
     yield
 
 http_bearer = HTTPBearer(auto_error=False)
