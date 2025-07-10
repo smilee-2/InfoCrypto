@@ -11,9 +11,11 @@ from app.api import router_auth, router_admin, router_coins, router_users
 from app.api.depends import depends
 from app.api.models import UserModel
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
+
 
 http_bearer = HTTPBearer(auto_error=False)
 
@@ -24,14 +26,5 @@ app.include_router(router_coins)
 app.include_router(router_users)
 
 
-BASE_DIR = Path(__file__).parent.parent
-
-templates_main = Jinja2Templates(directory=f'{BASE_DIR}/fronted/main_page')
-
-@app.get('/main_page', tags=['Main'])
-async def main_page(request: Request, user: Annotated[UserModel, Depends(depends.get_current_user)]):
-    return templates_main.TemplateResponse('index.html', {'request': request})
-
-
-if __name__ == '__main__':
-    uvicorn.run('main:app', host='localhost')
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="localhost")
