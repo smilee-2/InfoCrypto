@@ -11,6 +11,7 @@ async def auth_page(page: ft.Page, session: ClientSession):
     # TODO Сделать окно контейнер для красоты, а то сплошной фон
     # TODO Сделать предупреждение когда пароли не совпадают при регистрации
     """
+
     page.clean()
 
     async def login_req(e):
@@ -51,28 +52,32 @@ async def auth_page(page: ft.Page, session: ClientSession):
         page.update()
 
     async def login_page(e):
+        print("auth")
         page.clean()
         access_token = await page.client_storage.get_async("access_token")
         if access_token:
+            print("what?", access_token)
             await routers.PAGES.get("basic")(page, session)
-        login_btn.on_click = login_req
-        signup_btn.on_click = register_page
-        page.add(
-            login_field,
-            password_field,
-            ft.Row([login_btn, signup_btn], alignment=ft.MainAxisAlignment.CENTER),
-        )
-        page.update()
+        else:
+            login_btn.on_click = login_req
+            signup_btn.on_click = register_page
+            page.add(
+                login_field,
+                password_field,
+                ft.Row([login_btn, signup_btn], alignment=ft.MainAxisAlignment.CENTER),
+            )
+            page.update()
 
     # Fields
     email_field = ft.TextField(label="Email", width=500, max_lines=900)
     login_field = ft.TextField(label="Login", width=500, max_lines=900)
-    password_field = ft.TextField(label="password", width=500, max_lines=900)
+    password_field = ft.TextField(
+        label="password", width=500, max_lines=900, password=True
+    )
     conf_password_field = ft.TextField(
-        label="Confirm password", width=500, max_lines=900
+        label="Confirm password", width=500, max_lines=900, password=True
     )
     login_btn = ft.ElevatedButton(text="Войти", width=200, height=50)
     signup_btn = ft.ElevatedButton(text="Зарегистрироваться", width=200, height=50)
     page.appbar = None
-
     await login_page(None)

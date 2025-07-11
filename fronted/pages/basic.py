@@ -6,27 +6,46 @@ from fronted.pages import routers
 
 
 async def basic_page(page: ft.Page, session: ClientSession):
+    page.clean()
 
     async def get_top_coins():
         access_token = await page.client_storage.get_async("access_token")
+        refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
-            result = await get_hundred(session, access_token)
+            result, tokens = await get_hundred(session, access_token, refresh_token)
             if result == 401:
+                page.clean()
+                await page.client_storage.clear_async()
                 await routers.PAGES.get("auth")(page, session)
-            return result
-        raise
+            else:
+                await page.client_storage.set_async(
+                    "access_token", tokens["access_token"]
+                )
+                await page.client_storage.set_async(
+                    "refresh_token", tokens["refresh_token"]
+                )
+                return result
+        else:
+            page.clean()
+            await page.client_storage.clear_async()
+            await routers.PAGES.get("auth")(page, session)
 
     async def go_basic_page(e):
+        print("basic")
+        page.clean()
         result = await get_top_coins()
         data = []
         main_info = {}
+        count = 1
         for i in result:
+            main_info["top"] = count
             main_info["id"] = i["id"]
             main_info["name"] = i["name"]
             main_info["symbol"] = i["symbol"]
             main_info["price"] = i["quote"]["USD"]["price"]
             data.append(main_info)
             main_info = {}
+            count += 1
         columns = [ft.DataColumn(ft.Text(key.capitalize())) for key in data[0].keys()]
         rows = []
         for item in data:
@@ -51,6 +70,7 @@ async def basic_page(page: ft.Page, session: ClientSession):
                 expand=True,
             )
         )
+        page.update()
 
     async def go_profile(e):
         await routers.PAGES.get("profile")(page, session)
@@ -96,5 +116,5 @@ async def basic_page(page: ft.Page, session: ClientSession):
         padding=0,
         auto_scroll=False,
     )
-    page.clean()
+
     await go_basic_page(None)

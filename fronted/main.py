@@ -8,19 +8,25 @@ from pages.basic import basic_page
 
 
 async def main(page: ft.Page):
+    page.clean()
     session = ClientSession()
     page.title = "InfoCrypto"
     page.vertical_alignment = ft.MainAxisAlignment.END
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     async def auth(e):
+        print("main")
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
         await auth_page(page, session)
 
+    async def on_disconnect(e): ...
+
+    page.on_disconnect = on_disconnect
     access_token = await page.client_storage.get_async("access_token")
     if access_token:
         await basic_page(page, session)
-    await auth(None)
+    else:
+        await auth(None)
 
 
 if __name__ == "__main__":

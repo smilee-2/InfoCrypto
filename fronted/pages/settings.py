@@ -6,15 +6,18 @@ async def settings_page(page: ft.Page, session: ClientSession):
     page.clean()
 
     async def change_password(e):
+        if old_password_filed.value != new_password_field.value:
+            print("password !=")
+            return
         print("password change")
 
     async def change_mail(e): ...
 
     old_password_filed = ft.TextField(
-        label="Старый пароль", width=400, height=80, max_lines=900
+        label="Старый пароль", width=400, height=80, max_lines=900, password=True
     )
     new_password_field = ft.TextField(
-        label="Новый пароль", width=400, height=80, max_lines=900
+        label="Новый пароль", width=400, height=80, max_lines=900, password=True
     )
 
     password_change_btn = ft.ElevatedButton(
