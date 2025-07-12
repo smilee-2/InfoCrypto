@@ -31,7 +31,6 @@ async def basic_page(page: ft.Page, session: ClientSession):
             await routers.PAGES.get("auth")(page, session)
 
     async def go_basic_page(e):
-        page.clean()
         result = await get_top_coins()
         if result:
             data = []
@@ -57,20 +56,24 @@ async def basic_page(page: ft.Page, session: ClientSession):
             table.columns = columns
             table.rows = rows
             scrollable_table.controls = [table]
-
+            result_control = ft.Column(
+                [
+                    ft.Container(
+                        content=scrollable_table,
+                        expand=True,
+                        bgcolor=ft.Colors.with_opacity(0, ft.Colors.WHITE),
+                        border=ft.border.all(1, ft.Colors.WHITE),
+                        border_radius=10,
+                        blur=ft.Blur(
+                            sigma_x=10, tile_mode=ft.BlurTileMode.MIRROR, sigma_y=10
+                        ),
+                        padding=10,
+                    )
+                ],
+                expand=True,
+            )
             page.add(
-                ft.Column(
-                    [
-                        ft.Container(
-                            content=scrollable_table,
-                            expand=True,  # Занимает всё оставшееся место
-                            bgcolor=ft.Colors.BLUE_GREY_900,
-                            border_radius=5,
-                            padding=10,
-                        )
-                    ],
-                    expand=True,
-                )
+                ft.Stack([background, result_control], alignment=ft.alignment.center)
             )
             page.update()
 
@@ -90,7 +93,7 @@ async def basic_page(page: ft.Page, session: ClientSession):
         leading_width=40,
         title=ft.Text("InfoCrypto"),
         center_title=False,
-        bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST,
+        bgcolor=ft.Colors.with_opacity(0, ft.Colors.PURPLE_900),
         actions=[
             ft.IconButton(ft.Icons.HOME, on_click=go_basic_page),
             ft.IconButton(ft.Icons.PERSON, on_click=go_profile),
@@ -117,6 +120,15 @@ async def basic_page(page: ft.Page, session: ClientSession):
         spacing=0,
         padding=0,
         auto_scroll=False,
+    )
+
+    background = ft.Container(
+        width=page.width,
+        height=page.height,
+        image=ft.DecorationImage(src=r"/bg_auth.png"),
+        margin=-100,
+        alignment=ft.alignment.center_right,
+        expand=True,
     )
 
     await go_basic_page(None)

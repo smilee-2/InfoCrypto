@@ -11,6 +11,9 @@ async def settings_page(page: ft.Page, session: ClientSession):
         if old_password_filed.value == new_password_field.value:
             print("password !=")
             return
+        if "" in (old_password_filed.value, new_password_field.value):
+            print("поля пустые")
+            return
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
@@ -25,76 +28,131 @@ async def settings_page(page: ft.Page, session: ClientSession):
             )
 
     async def change_mail(e):
+        if "" in (new_email_field.value):
+            print("поля пустые")
+            return
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
-            if new_email_field.value != "":
-                await change_email(
-                    session,
-                    access_token,
-                    refresh_token,
-                    {"new_email": new_email_field.value},
-                )
+            await change_email(
+                session,
+                access_token,
+                refresh_token,
+                {"new_email": new_email_field.value},
+            )
 
     old_password_filed = ft.TextField(
-        label="Старый пароль", width=400, height=80, max_lines=900, password=True
+        label="Старый пароль",
+        password=True,
+        width=500,
+        max_lines=900,
+        border_width=1,
+        color=ft.Colors.WHITE,
+        border_color=ft.Colors.WHITE,
+        cursor_color=ft.Colors.WHITE,
+        label_style=ft.TextStyle(color=ft.Colors.WHITE),
     )
     new_password_field = ft.TextField(
-        label="Новый пароль", width=400, height=80, max_lines=900, password=True
+        label="Новый пароль",
+        password=True,
+        width=500,
+        max_lines=900,
+        border_width=1,
+        color=ft.Colors.WHITE,
+        border_color=ft.Colors.WHITE,
+        cursor_color=ft.Colors.WHITE,
+        label_style=ft.TextStyle(color=ft.Colors.WHITE),
     )
 
-    password_change_btn = ft.ElevatedButton(
-        text="Сменить пароль", on_click=req_change_password, width=200, height=50
+    password_change_btn = ft.OutlinedButton(
+        text="Сменить пароль",
+        on_click=req_change_password,
+        width=200,
+        height=50,
+        style=ft.ButtonStyle(
+            side=ft.BorderSide(1, ft.Colors.WHITE), color=ft.Colors.WHITE
+        ),
     )
 
     new_email_field = ft.TextField(
         label="Новая почта",
-        width=400,
-        height=80,
+        width=500,
         max_lines=900,
+        border_width=1,
+        color=ft.Colors.WHITE,
+        border_color=ft.Colors.WHITE,
+        cursor_color=ft.Colors.WHITE,
+        label_style=ft.TextStyle(color=ft.Colors.WHITE),
     )
 
-    new_email_btn = ft.ElevatedButton(
-        text="Сменить почту", on_click=change_mail, width=200, height=50
+    new_email_btn = ft.OutlinedButton(
+        text="Сменить почту",
+        on_click=change_mail,
+        width=200,
+        height=50,
+        style=ft.ButtonStyle(
+            side=ft.BorderSide(1, ft.Colors.WHITE), color=ft.Colors.WHITE
+        ),
     )
 
     main_area = ft.Container(
         content=ft.Column(
             controls=[
-                ft.Row(
-                    [old_password_filed],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                ft.Column(
+                    controls=[
+                        ft.Row(
+                            [old_password_filed],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                        ft.Row(
+                            [new_password_field],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                        ft.Row(
+                            [password_change_btn],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                    ],
+                    spacing=10,
                 ),
-                ft.Row(
-                    [new_password_field],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
-                ft.Row(
-                    [password_change_btn],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
-                ft.Row(
-                    [new_email_field],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
-                ft.Row(
-                    [new_email_btn],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                ft.Column(
+                    controls=[
+                        ft.Row(
+                            [new_email_field],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                        ft.Row(
+                            [new_email_btn],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                    ],
+                    spacing=10,
                 ),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
+            spacing=80,
         ),
-        border_radius=10,
-        bgcolor=ft.Colors.BLUE_GREY_900,
-        width=800,
-        height=1000,
         padding=10,
-        margin=10,
+        border=ft.border.all(1, ft.Colors.WHITE),
+        border_radius=10,
+        bgcolor=ft.Colors.with_opacity(0, ft.Colors.WHITE),
+        width=700,
+        height=900,
+        blur=ft.Blur(sigma_x=10, tile_mode=ft.BlurTileMode.MIRROR, sigma_y=10),
     )
 
-    page.add(main_area)
+    background = ft.Container(
+        width=page.width,
+        height=page.height,
+        image=ft.DecorationImage(src=r"/bg_auth.png"),
+        margin=-100,
+        alignment=ft.alignment.center_right,
+        expand=True,
+    )
+
+    page.add(ft.Stack([background, main_area], alignment=ft.alignment.center))

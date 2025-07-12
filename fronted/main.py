@@ -8,7 +8,7 @@ from pages.basic import basic_page
 async def main(page: ft.Page):
     page.clean()
     session = ClientSession()
-    page.bgcolor = ft.Colors.BLACK
+    page.bgcolor = ft.Colors.BLACK  # noqa
     page.title = "InfoCrypto"
     page.vertical_alignment = ft.MainAxisAlignment.END
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -18,15 +18,11 @@ async def main(page: ft.Page):
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
         await auth_page(page, session)
 
-    async def session_error(e):
-        await session.close()
-
     access_token = await page.client_storage.get_async("access_token")
     if access_token:
         await basic_page(page, session)
     else:
         await auth(None)
-    page.on_error = session_error
 
 
 if __name__ == "__main__":

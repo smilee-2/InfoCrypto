@@ -74,6 +74,26 @@ async def get_hundred(session: ClientSession, access_token: str, refresh_token: 
 
 
 @update_tokens_decorator
+async def get_favorite_coins(
+    session: ClientSession, access_token: str, refresh_token: str
+):
+    # TODO
+    answer_iof_refresh = (401, None)
+    response = await session.get(
+        f"{BASE_URL}/coins/api",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    if response.status == 200:
+        return await response.json(), {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+    elif response.status == 401:
+        return answer_iof_refresh
+    return answer_iof_refresh
+
+
+@update_tokens_decorator
 async def change_password(
     session: ClientSession,
     access_token: str,
