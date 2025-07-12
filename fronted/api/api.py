@@ -1,10 +1,36 @@
 import os
+from functools import wraps
 
 from aiohttp import ClientSession
 from dotenv import load_dotenv
 
 load_dotenv()
 BASE_URL = os.getenv("URL")
+
+
+def update_tokens_decorator(func):
+    """обновить access через refresh или вернуть 401 error"""
+
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        session, access_token, refresh_token, *ar = args
+        result, tokens = await func(session, access_token, refresh_token, *ar)
+        answer_iof_refresh = (result, tokens)
+        if result == 401:
+            resp = await session.post(
+                f"{BASE_URL}/auth/refresh",
+                headers={"Authorization": f"Bearer {refresh_token}"},
+            )
+            if resp.status == 200:
+                result = await resp.json()
+                answer_iof_refresh = await func(
+                    session, result["access_token"], result["refresh_token"], *ar
+                )
+            elif resp.status == 401:
+                return 401, None
+        return answer_iof_refresh
+
+    return wrapper
 
 
 async def login(data: dict[str:str], session: ClientSession):
@@ -14,24 +40,25 @@ async def login(data: dict[str:str], session: ClientSession):
     response = await session.post(f"{BASE_URL}/auth/token", data=data)
     if response.status == 200:
         return await response.json()
-    raise
+    return 401
 
 
-async def register(data: dict[str:str], session: ClientSession) -> int:
+async def register(data: dict[str:str], session: ClientSession):
     """
     зарегистрироваться
     """
     response = await session.post(f"{BASE_URL}/auth/register", params=data)
     if response.status == 200:
         return await response.json()
-    raise
+    return 409
 
 
+@update_tokens_decorator
 async def get_hundred(session: ClientSession, access_token: str, refresh_token: str):
     """
     получить топ 100 монет
     """
-    data = (401, None)
+    answer_iof_refresh = (401, None)
     response = await session.get(
         f"{BASE_URL}/coins/get_top_hundred_coins",
         headers={"Authorization": f"Bearer {access_token}"},
@@ -42,30 +69,57 @@ async def get_hundred(session: ClientSession, access_token: str, refresh_token: 
             "refresh_token": refresh_token,
         }
     elif response.status == 401:
-        resp = await session.post(
-            f"{BASE_URL}/auth/refresh",
-            headers={"Authorization": f"Bearer {refresh_token}"},
-        )
-        if resp.status == 200:
-            result = await resp.json()
-            data = await get_hundred(
-                session, result["access_token"], result["refresh_token"]
-            )
-        elif resp.status == 401:
-            return 401, None
-    return data
+        return answer_iof_refresh
+    return answer_iof_refresh
 
 
+@update_tokens_decorator
 async def change_password(
-    session: ClientSession, access_token: str, refresh_token: str
+    session: ClientSession,
+    access_token: str,
+    refresh_token: str,
+    passwords: dict[str:str],
 ):
     """
     сменить пароль
     """
+    answer_iof_refresh = (401, None)
     response = await session.patch(
         f"{BASE_URL}/users/patch_user_password",
         headers={"Authorization": f"Bearer {access_token}"},
+        params=passwords,
     )
     if response.status == 200:
-        return await response.json()
-    return response.status
+        return await response.json(), {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+    elif response.status == 401:
+        return answer_iof_refresh
+    return answer_iof_refresh
+
+
+@update_tokens_decorator
+async def change_email(
+    session: ClientSession,
+    access_token: str,
+    refresh_token: str,
+    new_email: dict[str:str],
+):
+    """
+    сменить почту
+    """
+    answer_iof_refresh = (401, None)
+    response = await session.patch(
+        f"{BASE_URL}/users/patch_user_email",
+        headers={"Authorization": f"Bearer {access_token}"},
+        params=new_email,
+    )
+    if response.status == 200:
+        return await response.json(), {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+    elif response.status == 401:
+        return answer_iof_refresh
+    return answer_iof_refresh

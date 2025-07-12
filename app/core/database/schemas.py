@@ -7,32 +7,30 @@ class Base(DeclarativeBase):
 
 
 class UserSchemas(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(unique=True, nullable=True)
     username: Mapped[str] = mapped_column(unique=True, nullable=True)
-    password: Mapped[str] = mapped_column(unique=True, nullable=True)
+    password: Mapped[str] = mapped_column(nullable=True)
     disabled: Mapped[bool] = mapped_column(nullable=True)
     root: Mapped[str] = mapped_column(nullable=True)
 
-    coins: Mapped[list['CoinsFavoritesSchemas']] = relationship(back_populates='user')
+    coins: Mapped[list["CoinsFavoritesSchemas"]] = relationship(back_populates="user")
 
 
 class CoinsFavoritesSchemas(Base):
-    __tablename__ = 'favorites'
+    __tablename__ = "favorites"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    coin_name: Mapped[str] = mapped_column(unique=True, nullable=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+    coin_name: Mapped[str] = mapped_column(nullable=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
 
-    user: Mapped['UserSchemas'] = relationship(back_populates='coins')
+    user: Mapped["UserSchemas"] = relationship(back_populates="coins")
 
 
 class TokenInfoSchemas(Base):
     __tablename__ = "tokens"
     id: Mapped[int] = mapped_column(primary_key=True)
-    refresh_token: Mapped[str] = mapped_column(unique=True, nullable=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
-    #expires_at: Mapped[]
-
+    refresh_token: Mapped[str] = mapped_column(nullable=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))

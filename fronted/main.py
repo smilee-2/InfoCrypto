@@ -1,5 +1,3 @@
-import asyncio
-
 import flet as ft
 from aiohttp import ClientSession
 
@@ -10,24 +8,26 @@ from pages.basic import basic_page
 async def main(page: ft.Page):
     page.clean()
     session = ClientSession()
+    page.bgcolor = ft.Colors.BLACK
     page.title = "InfoCrypto"
     page.vertical_alignment = ft.MainAxisAlignment.END
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.scroll = ft.ScrollMode.AUTO
 
     async def auth(e):
-        print("main")
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
         await auth_page(page, session)
 
-    async def on_disconnect(e): ...
+    async def session_error(e):
+        await session.close()
 
-    page.on_disconnect = on_disconnect
     access_token = await page.client_storage.get_async("access_token")
     if access_token:
         await basic_page(page, session)
     else:
         await auth(None)
+    page.on_error = session_error
 
 
 if __name__ == "__main__":
-    ft.app(target=main, port=54500, view=ft.AppView.WEB_BROWSER)
+    ft.app(target=main, view=ft.AppView.WEB_BROWSER, assets_dir="../assets")

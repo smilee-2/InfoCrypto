@@ -31,46 +31,48 @@ async def basic_page(page: ft.Page, session: ClientSession):
             await routers.PAGES.get("auth")(page, session)
 
     async def go_basic_page(e):
-        print("basic")
         page.clean()
         result = await get_top_coins()
-        data = []
-        main_info = {}
-        count = 1
-        for i in result:
-            main_info["top"] = count
-            main_info["id"] = i["id"]
-            main_info["name"] = i["name"]
-            main_info["symbol"] = i["symbol"]
-            main_info["price"] = i["quote"]["USD"]["price"]
-            data.append(main_info)
+        if result:
+            data = []
             main_info = {}
-            count += 1
-        columns = [ft.DataColumn(ft.Text(key.capitalize())) for key in data[0].keys()]
-        rows = []
-        for item in data:
-            row_cells = [ft.DataCell(ft.Text(value)) for value in item.values()]
-            rows.append(ft.DataRow(cells=row_cells))
+            count = 1
+            for i in result:
+                main_info["top"] = count
+                main_info["id"] = i["id"]
+                main_info["name"] = i["name"]
+                main_info["symbol"] = i["symbol"]
+                main_info["price"] = i["quote"]["USD"]["price"]
+                data.append(main_info)
+                main_info = {}
+                count += 1
+            columns = [
+                ft.DataColumn(ft.Text(key.capitalize())) for key in data[0].keys()
+            ]
+            rows = []
+            for item in data:
+                row_cells = [ft.DataCell(ft.Text(value)) for value in item.values()]
+                rows.append(ft.DataRow(cells=row_cells))
 
-        table.columns = columns
-        table.rows = rows
-        scrollable_table.controls = [table]
+            table.columns = columns
+            table.rows = rows
+            scrollable_table.controls = [table]
 
-        page.add(
-            ft.Column(
-                [
-                    ft.Container(
-                        content=scrollable_table,
-                        expand=True,  # Занимает всё оставшееся место
-                        bgcolor=ft.Colors.BLUE_GREY_900,
-                        border_radius=5,
-                        padding=10,
-                    )
-                ],
-                expand=True,
+            page.add(
+                ft.Column(
+                    [
+                        ft.Container(
+                            content=scrollable_table,
+                            expand=True,  # Занимает всё оставшееся место
+                            bgcolor=ft.Colors.BLUE_GREY_900,
+                            border_radius=5,
+                            padding=10,
+                        )
+                    ],
+                    expand=True,
+                )
             )
-        )
-        page.update()
+            page.update()
 
     async def go_profile(e):
         await routers.PAGES.get("profile")(page, session)

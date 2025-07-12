@@ -1,17 +1,40 @@
 import flet as ft
 from aiohttp import ClientSession
 
+from fronted.api.api import change_password, change_email
+
 
 async def settings_page(page: ft.Page, session: ClientSession):
     page.clean()
 
-    async def change_password(e):
-        if old_password_filed.value != new_password_field.value:
+    async def req_change_password(e):
+        if old_password_filed.value == new_password_field.value:
             print("password !=")
             return
-        print("password change")
+        access_token = await page.client_storage.get_async("access_token")
+        refresh_token = await page.client_storage.get_async("refresh_token")
+        if access_token:
+            await change_password(
+                session,
+                access_token,
+                refresh_token,
+                {
+                    "password": old_password_filed.value,
+                    "new_password": new_password_field.value,
+                },
+            )
 
-    async def change_mail(e): ...
+    async def change_mail(e):
+        access_token = await page.client_storage.get_async("access_token")
+        refresh_token = await page.client_storage.get_async("refresh_token")
+        if access_token:
+            if new_email_field.value != "":
+                await change_email(
+                    session,
+                    access_token,
+                    refresh_token,
+                    {"new_email": new_email_field.value},
+                )
 
     old_password_filed = ft.TextField(
         label="Старый пароль", width=400, height=80, max_lines=900, password=True
@@ -21,7 +44,18 @@ async def settings_page(page: ft.Page, session: ClientSession):
     )
 
     password_change_btn = ft.ElevatedButton(
-        text="Изменить пароль", on_click=change_password, width=200, height=50
+        text="Сменить пароль", on_click=req_change_password, width=200, height=50
+    )
+
+    new_email_field = ft.TextField(
+        label="Новая почта",
+        width=400,
+        height=80,
+        max_lines=900,
+    )
+
+    new_email_btn = ft.ElevatedButton(
+        text="Сменить почту", on_click=change_mail, width=200, height=50
     )
 
     main_area = ft.Container(
@@ -42,8 +76,18 @@ async def settings_page(page: ft.Page, session: ClientSession):
                     alignment=ft.MainAxisAlignment.CENTER,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
+                ft.Row(
+                    [new_email_field],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                ),
+                ft.Row(
+                    [new_email_btn],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                ),
             ],
-            alignment=ft.alignment.center,
+            alignment=ft.MainAxisAlignment.CENTER,
         ),
         border_radius=10,
         bgcolor=ft.Colors.BLUE_GREY_900,
