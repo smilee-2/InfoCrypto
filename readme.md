@@ -1,4 +1,4 @@
-# <p style="text-align: center;"> InfoCrypto on FastApi
+# <p style="text-align: center;"> InfoCrypto
 ____
 ### About:
 #### __Трекер криптовалют__
