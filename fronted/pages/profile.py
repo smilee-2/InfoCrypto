@@ -23,9 +23,19 @@ async def profile_page(page: ft.Page, session: ClientSession):
                 main_info = {}
                 count += 1
             columns = [
-                ft.DataColumn(ft.Text(key.capitalize())) for key in data[0].keys()
+                ft.DataColumn(
+                    ft.Text(key.capitalize(), selectable=True),
+                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
+                )
+                for key in data[0].keys()
             ]
-            columns.append(ft.DataColumn(ft.IconButton(ft.Icons.STAR), disabled=True))
+            columns.append(
+                ft.DataColumn(
+                    ft.IconButton(ft.Icons.DELETE_FOREVER),
+                    disabled=True,
+                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
+                )
+            )
             rows = []
             for item in data:
                 btn_delete = ft.IconButton(
@@ -34,8 +44,23 @@ async def profile_page(page: ft.Page, session: ClientSession):
                         delete_favorite_coin, event, row
                     ),
                 )
-                row_cells = [ft.DataCell(ft.Text(value)) for value in item.values()]
-                row_cells.append(ft.DataCell(btn_delete))
+                row_cells = [
+                    ft.DataCell(
+                        ft.Container(
+                            ft.Text(value, selectable=True),
+                            alignment=ft.alignment.center,
+                        )
+                    )
+                    for value in item.values()
+                ]
+                row_cells.append(
+                    ft.DataCell(
+                        ft.Container(
+                            btn_delete,
+                            alignment=ft.alignment.center,
+                        )
+                    )
+                )
                 rows.append(ft.DataRow(cells=row_cells))
 
             table.columns = columns
@@ -116,7 +141,9 @@ async def profile_page(page: ft.Page, session: ClientSession):
         column_spacing=200,
         heading_text_style=ft.TextStyle(size=14, weight=ft.FontWeight.BOLD),
         divider_thickness=1,
-        data_row_max_height=30,
+        data_row_max_height=60,
+        data_row_min_height=40,
+        horizontal_lines=ft.border.BorderSide(width=1, color=ft.Colors.WHITE),
     )
     scrollable_table = ft.ListView(
         controls=[table],

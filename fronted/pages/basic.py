@@ -1,4 +1,5 @@
 import asyncio
+from os import access
 
 import flet as ft
 from aiohttp import ClientSession
@@ -70,6 +71,8 @@ async def basic_page(page: ft.Page, session: ClientSession):
     async def go_basic_page(e):
         page.clean()
         page.update()
+        # access_token = await page.client_storage.get_async("access_token")
+
         result = await get_top_coins()
         if result:
             data = []
@@ -85,9 +88,19 @@ async def basic_page(page: ft.Page, session: ClientSession):
                 main_info = {}
                 count += 1
             columns = [
-                ft.DataColumn(ft.Text(key.capitalize())) for key in data[0].keys()
+                ft.DataColumn(
+                    ft.Text(key.capitalize(), selectable=True),
+                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
+                )
+                for key in data[0].keys()
             ]
-            columns.append(ft.DataColumn(ft.IconButton(ft.Icons.STAR), disabled=True))
+            columns.append(
+                ft.DataColumn(
+                    ft.IconButton(ft.Icons.STAR),
+                    disabled=True,
+                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
+                )
+            )
             rows = []
             for item in data:
                 btn_favorites = ft.IconButton(
@@ -96,8 +109,23 @@ async def basic_page(page: ft.Page, session: ClientSession):
                         add_favorite_coin, event, row
                     ),
                 )
-                row_cells = [ft.DataCell(ft.Text(value)) for value in item.values()]
-                row_cells.append(ft.DataCell(btn_favorites))
+                row_cells = [
+                    ft.DataCell(
+                        ft.Container(
+                            ft.Text(value, selectable=True),
+                            alignment=ft.alignment.center,
+                        )
+                    )
+                    for value in item.values()
+                ]
+                row_cells.append(
+                    ft.DataCell(
+                        ft.Container(
+                            btn_favorites,
+                            alignment=ft.alignment.center,
+                        )
+                    )
+                )
                 rows.append(ft.DataRow(cells=row_cells))
 
             table.columns = columns
@@ -158,7 +186,9 @@ async def basic_page(page: ft.Page, session: ClientSession):
         column_spacing=200,
         heading_text_style=ft.TextStyle(size=14, weight=ft.FontWeight.BOLD),
         divider_thickness=1,
-        data_row_max_height=30,
+        data_row_max_height=60,
+        data_row_min_height=40,
+        horizontal_lines=ft.border.BorderSide(width=1, color=ft.Colors.WHITE),
     )
     scrollable_table = ft.ListView(
         controls=[table],
