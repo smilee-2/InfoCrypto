@@ -137,7 +137,7 @@ class CoinsCrud:
             coin = CoinsFavoritesSchemas(
                 coin_name=coin_input["name"],
                 user_id=user_id,
-                price=coin_input["quote"]["USD"]["price"],
+                coin_id=coin_input["id"],
             )
             session.add(coin)
             return {"message": "coin was added to favorites"}

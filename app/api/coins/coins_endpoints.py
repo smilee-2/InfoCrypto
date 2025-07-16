@@ -22,7 +22,6 @@ async def get_crypto(
 
 
 @router.get("/get_all_favorites_coins")
-@cache(30)
 async def get_all_favorites_coins(
     user: Annotated[UserModel, Depends(depends.get_current_user)],
 ):
@@ -33,7 +32,7 @@ async def get_all_favorites_coins(
 
 
 @router.get("/get_coin_by_id/{currency_id}")
-@cache(expire=30)
+@cache(expire=10)
 async def get_crypto_one(
     currency_id: int, user: Annotated[UserModel, Depends(depends.get_current_user)]
 ):
@@ -56,7 +55,6 @@ async def add_coin_to_favorites(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Монета уже добавлена"
         )
-    print(coin_dict)
     return await CoinsCrud.add_coin(coin_input=coin_dict, user_id=user_id)
 
 

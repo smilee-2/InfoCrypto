@@ -118,6 +118,28 @@ async def add_fav_coin_in_db(
 
 
 @update_tokens_decorator
+async def get_fav_one_coin(
+    session: ClientSession, access_token: str, refresh_token: str, coin_id: int
+):
+    """Добавить монету в избранное"""
+    answer_iof_refresh = (401, None)
+    response = await session.get(
+        f"{BASE_URL}/coins/get_coin_by_id/{coin_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    if response.status == 200:
+        return await response.json(), {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+    elif response.status == 401:
+        return answer_iof_refresh
+    elif response.status == 409:
+        return 409, None
+    return answer_iof_refresh
+
+
+@update_tokens_decorator
 async def delete_coin(
     session: ClientSession, access_token: str, refresh_token: str, coin_name: str
 ):

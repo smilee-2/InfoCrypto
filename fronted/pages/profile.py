@@ -1,7 +1,7 @@
 import flet as ft
 from aiohttp import ClientSession
 
-from fronted.api.api import get_favorite_coins, delete_coin
+from fronted.api.api import get_favorite_coins, delete_coin, get_fav_one_coin
 from fronted.pages import routers
 
 
@@ -9,9 +9,9 @@ async def profile_page(page: ft.Page, session: ClientSession):
     page.clean()
     page.update()
 
-    async def data_processing(e, result):
+    async def data_processing(e, coins):
+        """Обработка и вывод информации в таблицу"""
         page.clean()
-        coins = result["coins"]
         if coins:
             data = []
             main_info = {}
@@ -132,11 +132,13 @@ async def profile_page(page: ft.Page, session: ClientSession):
             page.update()
 
     async def go_auth_page():
+        """Вернуться на страницу авторизации"""
         page.clean()
         await page.client_storage.clear_async()
         await routers.PAGES.get("auth")(page, session)
 
     async def get_favorite(e):
+        """Получить избранные монеты"""
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
@@ -170,14 +172,40 @@ async def profile_page(page: ft.Page, session: ClientSession):
                 return
             else:
                 result = await get_favorite(e)
-                await data_processing(e, result)
+                await data_processing(e, result["coins"])
+        else:
+            await go_auth_page()
+            return
+
+    async def get_one_coin_price(e, coin_id):
+        access_token = await page.client_storage.get_async("access_token")
+        refresh_token = await page.client_storage.get_async("refresh_token")
+        if access_token:
+            result, tokens = await get_fav_one_coin(
+                session, access_token, refresh_token, coin_id
+            )
+            if result == 401:
+                await go_auth_page()
+                return
+            else:
+                await page.client_storage.set_async(
+                    "access_token", tokens["access_token"]
+                )
+                await page.client_storage.set_async(
+                    "refresh_token", tokens["refresh_token"]
+                )
+                return result["quote"]["USD"]["price"]
         else:
             await go_auth_page()
             return
 
     async def go_profile_page(e):
         result = await get_favorite(e)
-        await data_processing(e, result)
+        coins = result["coins"]
+        if coins:
+            for item in coins:
+                item["price"] = await get_one_coin_price(e, item["coin_id"])
+        await data_processing(e, coins)
 
     # Fields
     table = ft.DataTable(

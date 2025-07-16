@@ -24,7 +24,7 @@ class CoinsFavoritesSchemas(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     coin_name: Mapped[str] = mapped_column(nullable=False)
-    price: Mapped[float] = mapped_column(nullable=True)
+    coin_id: Mapped[int] = mapped_column(nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
 
     user: Mapped["UserSchemas"] = relationship(back_populates="coins")

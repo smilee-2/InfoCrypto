@@ -136,7 +136,7 @@ async def basic_page(page: ft.Page, session: ClientSession):
                 await page.client_storage.set_async(
                     "refresh_token", tokens["refresh_token"]
                 )
-                alert_d.title = ft.Text("Успех!")
+                alert_d.title = ft.Text("Успешно!")
                 alert_d.content = ft.Text("Монета добавлена")
                 page.open(alert_d)
         else:
