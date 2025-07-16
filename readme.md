@@ -20,15 +20,20 @@ ___
 
 ### <p style="text-align: center;"> Register page
 <p align="center">
-  <img width="800" height="600" src="imgs/img_reg.png">
+  <img width="1000" height="500" src="imgs/img_reg.png">
 </p>
 
 ### <p style="text-align: center;"> Main page
 <p align="center">
-  <img width="1000" height="300" src="imgs/img_bas.png">
+  <img width="1000" height="500" src="imgs/img_bas.png">
+</p>
+
+### <p style="text-align: center;"> Profile page
+<p align="center">
+  <img width="1000" height="500" src="imgs/img_profile.png">
 </p>
 
 ### <p style="text-align: center;"> Settings page
 <p align="center">
-  <img width="800" height="600" src="imgs/img_sett.png">
+  <img width="1000" height="500" src="imgs/img_sett.png">
 </p>
