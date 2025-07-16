@@ -13,7 +13,7 @@ router = APIRouter(prefix="/coins", tags=["Coins"])
 @router.get("/get_top_hundred_coins")
 async def get_crypto(
     user: Annotated[UserModel, Depends(depends.get_current_user)],
-) -> list:
+):
     """Вернет информацию топ 100 монет"""
     cmc = await get_obj_cmc()
     return await cmc.get_listing()
@@ -22,7 +22,7 @@ async def get_crypto(
 @router.get("/get_all_favorites_coins")
 async def get_all_favorites_coins(
     user: Annotated[UserModel, Depends(depends.get_current_user)],
-) -> dict:
+):
     """Вернет все избранные монеты пользователя"""
     user_id = await UserCrud.get_user_id(username=user.username)
     coins = await CoinsCrud.get_all_f_coins(user_id=user_id)
@@ -32,7 +32,7 @@ async def get_all_favorites_coins(
 @router.get("/get_coin_by_id/{currency_id}")
 async def get_crypto_one(
     currency_id: int, user: Annotated[UserModel, Depends(depends.get_current_user)]
-) -> dict:
+):
     """Вернет информацию об одной монете по id"""
     cmc = await get_obj_cmc()
     return await cmc.get_currency(currency_id=currency_id)

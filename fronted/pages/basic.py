@@ -50,7 +50,13 @@ async def basic_page(page: ft.Page, session: ClientSession):
                 await go_auth_page()
                 return
             elif result == 409:
+                page.title = ft.Text("Ошибка")
+                alert_d.content = ft.Text("Монета уже добавлена")
                 page.open(alert_d)
+                return
+            page.title = ft.Text("Успех!")
+            alert_d.content = ft.Text("Монета добавлена")
+            page.open(alert_d)
         else:
             await go_auth_page()
             return
