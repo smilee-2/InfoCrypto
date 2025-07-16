@@ -134,7 +134,11 @@ class CoinsCrud:
     @staticmethod
     async def add_coin(coin_input: dict, user_id: int) -> dict[str, str]:
         async with session_maker.begin() as session:
-            coin = CoinsFavoritesSchemas(coin_name=coin_input["name"], user_id=user_id)
+            coin = CoinsFavoritesSchemas(
+                coin_name=coin_input["name"],
+                user_id=user_id,
+                price=coin_input["quote"]["USD"]["price"],
+            )
             session.add(coin)
             return {"message": "coin was added to favorites"}
 

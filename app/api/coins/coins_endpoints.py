@@ -6,11 +6,13 @@ from app.api.coins.http_client import get_obj_cmc
 from app.api.models import UserModel
 from app.core.database.crud import CoinsCrud, UserCrud
 from app.api.depends import depends
+from fastapi_cache.decorator import cache
 
 router = APIRouter(prefix="/coins", tags=["Coins"])
 
 
 @router.get("/get_top_hundred_coins")
+@cache(expire=30)
 async def get_crypto(
     user: Annotated[UserModel, Depends(depends.get_current_user)],
 ):
@@ -20,6 +22,7 @@ async def get_crypto(
 
 
 @router.get("/get_all_favorites_coins")
+@cache(30)
 async def get_all_favorites_coins(
     user: Annotated[UserModel, Depends(depends.get_current_user)],
 ):
@@ -30,6 +33,7 @@ async def get_all_favorites_coins(
 
 
 @router.get("/get_coin_by_id/{currency_id}")
+@cache(expire=30)
 async def get_crypto_one(
     currency_id: int, user: Annotated[UserModel, Depends(depends.get_current_user)]
 ):
@@ -52,6 +56,7 @@ async def add_coin_to_favorites(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Монета уже добавлена"
         )
+    print(coin_dict)
     return await CoinsCrud.add_coin(coin_input=coin_dict, user_id=user_id)
 
 

@@ -1,8 +1,9 @@
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi_cache.decorator import cache
 
-from ..models import UserModel
+from app.api.models import UserModel
 from app.core.database.crud import UserCrud, UserRootModel
 from app.api.depends import depends
 
@@ -10,6 +11,7 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
 @router.get("/get_user_by_id/{user_id}")
+@cache(expire=30)
 async def get_user_by_id(
     user_id: int, admin: Annotated[UserRootModel, Depends(depends.get_current_user)]
 ) -> UserModel:
@@ -20,6 +22,7 @@ async def get_user_by_id(
 
 
 @router.get("/get_user_by_username/{username}")
+@cache(expire=30)
 async def get_user_by_username(
     username: str, admin: Annotated[UserRootModel, Depends(depends.get_current_user)]
 ) -> UserModel:
@@ -30,6 +33,7 @@ async def get_user_by_username(
 
 
 @router.get("/get_all_users")
+@cache(expire=30)
 async def get_all_users(
     admin: Annotated[UserRootModel, Depends(depends.get_current_user)],
 ) -> list:
