@@ -17,6 +17,81 @@ async def basic_page(page: ft.Page, session: ClientSession):
         await page.client_storage.clear_async()
         await routers.PAGES.get("auth")(page, session)
 
+    async def data_processing(e, result):
+        data = []
+        main_info = {}
+        count = 1
+        for i in result:
+            main_info["top"] = count
+            main_info["id"] = i["id"]
+            main_info["name"] = i["name"]
+            main_info["symbol"] = i["symbol"]
+            main_info["price"] = i["quote"]["USD"]["price"]
+            data.append(main_info)
+            main_info = {}
+            count += 1
+        columns = [
+            ft.DataColumn(
+                ft.Text(key.capitalize(), selectable=True),
+                heading_row_alignment=ft.MainAxisAlignment.CENTER,
+            )
+            for key in data[0].keys()
+        ]
+        columns.append(
+            ft.DataColumn(
+                ft.IconButton(ft.Icons.STAR),
+                disabled=True,
+                heading_row_alignment=ft.MainAxisAlignment.CENTER,
+            )
+        )
+        rows = []
+        for item in data:
+            btn_favorites = ft.IconButton(
+                icon=ft.Icons.ADD,
+                on_click=lambda event, row=item: page.run_task(
+                    add_favorite_coin, event, row
+                ),
+            )
+            row_cells = [
+                ft.DataCell(
+                    ft.Container(
+                        ft.Text(value, selectable=True),
+                        alignment=ft.alignment.center,
+                    )
+                )
+                for value in item.values()
+            ]
+            row_cells.append(
+                ft.DataCell(
+                    ft.Container(
+                        btn_favorites,
+                        alignment=ft.alignment.center,
+                    )
+                )
+            )
+            rows.append(ft.DataRow(cells=row_cells))
+
+        table.columns = columns
+        table.rows = rows
+        scrollable_table.controls = [table]
+        result_control = ft.Column(
+            [
+                ft.Container(
+                    content=scrollable_table,
+                    expand=True,
+                    bgcolor=ft.Colors.with_opacity(0, ft.Colors.WHITE),
+                    border=ft.border.all(1, ft.Colors.WHITE),
+                    border_radius=10,
+                    blur=ft.Blur(
+                        sigma_x=10, tile_mode=ft.BlurTileMode.MIRROR, sigma_y=10
+                    ),
+                    padding=10,
+                )
+            ],
+            expand=True,
+        )
+        return result_control
+
     async def get_top_coins():
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
@@ -71,86 +146,10 @@ async def basic_page(page: ft.Page, session: ClientSession):
     async def go_basic_page(e):
         page.clean()
         page.update()
-        # access_token = await page.client_storage.get_async("access_token")
-
         result = await get_top_coins()
-        if result:
-            data = []
-            main_info = {}
-            count = 1
-            for i in result:
-                main_info["top"] = count
-                main_info["id"] = i["id"]
-                main_info["name"] = i["name"]
-                main_info["symbol"] = i["symbol"]
-                main_info["price"] = i["quote"]["USD"]["price"]
-                data.append(main_info)
-                main_info = {}
-                count += 1
-            columns = [
-                ft.DataColumn(
-                    ft.Text(key.capitalize(), selectable=True),
-                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
-                )
-                for key in data[0].keys()
-            ]
-            columns.append(
-                ft.DataColumn(
-                    ft.IconButton(ft.Icons.STAR),
-                    disabled=True,
-                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
-                )
-            )
-            rows = []
-            for item in data:
-                btn_favorites = ft.IconButton(
-                    icon=ft.Icons.ADD,
-                    on_click=lambda event, row=item: page.run_task(
-                        add_favorite_coin, event, row
-                    ),
-                )
-                row_cells = [
-                    ft.DataCell(
-                        ft.Container(
-                            ft.Text(value, selectable=True),
-                            alignment=ft.alignment.center,
-                        )
-                    )
-                    for value in item.values()
-                ]
-                row_cells.append(
-                    ft.DataCell(
-                        ft.Container(
-                            btn_favorites,
-                            alignment=ft.alignment.center,
-                        )
-                    )
-                )
-                rows.append(ft.DataRow(cells=row_cells))
-
-            table.columns = columns
-            table.rows = rows
-            scrollable_table.controls = [table]
-            result_control = ft.Column(
-                [
-                    ft.Container(
-                        content=scrollable_table,
-                        expand=True,
-                        bgcolor=ft.Colors.with_opacity(0, ft.Colors.WHITE),
-                        border=ft.border.all(1, ft.Colors.WHITE),
-                        border_radius=10,
-                        blur=ft.Blur(
-                            sigma_x=10, tile_mode=ft.BlurTileMode.MIRROR, sigma_y=10
-                        ),
-                        padding=10,
-                    )
-                ],
-                expand=True,
-            )
-            page.add(
-                ft.Stack([background, result_control], alignment=ft.alignment.center)
-            )
-            page.update()
+        result_control = await data_processing(e, result)
+        page.add(ft.Stack([background, result_control], alignment=ft.alignment.center))
+        page.update()
 
     async def go_profile(e):
         await routers.PAGES.get("profile")(page, session)
