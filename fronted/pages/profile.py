@@ -1,13 +1,66 @@
 import flet as ft
 from aiohttp import ClientSession
 
-from fronted.api.api import get_favorite_coins
+from fronted.api.api import get_favorite_coins, delete_coin
 from fronted.pages import routers
 
 
 async def profile_page(page: ft.Page, session: ClientSession):
     page.clean()
     page.update()
+
+    async def data_processing(e, result):
+        page.clean()
+        coins = result["coins"]
+        if result:
+            data = []
+            main_info = {}
+            count = 1
+            for i in coins:
+                main_info["id"] = count
+                main_info["Name"] = i["coin_name"]
+                data.append(main_info)
+                main_info = {}
+                count += 1
+            columns = [
+                ft.DataColumn(ft.Text(key.capitalize())) for key in data[0].keys()
+            ]
+            columns.append(ft.DataColumn(ft.IconButton(ft.Icons.STAR), disabled=True))
+            rows = []
+            for item in data:
+                btn_delete = ft.IconButton(
+                    icon=ft.Icons.DELETE,
+                    on_click=lambda event, row=item: page.run_task(
+                        delete_favorite_coin, event, row
+                    ),
+                )
+                row_cells = [ft.DataCell(ft.Text(value)) for value in item.values()]
+                row_cells.append(ft.DataCell(btn_delete))
+                rows.append(ft.DataRow(cells=row_cells))
+
+            table.columns = columns
+            table.rows = rows
+            scrollable_table.controls = [table]
+            result_control = ft.Column(
+                [
+                    ft.Container(
+                        content=scrollable_table,
+                        expand=True,
+                        bgcolor=ft.Colors.with_opacity(0, ft.Colors.WHITE),
+                        border=ft.border.all(1, ft.Colors.WHITE),
+                        border_radius=10,
+                        blur=ft.Blur(
+                            sigma_x=10, tile_mode=ft.BlurTileMode.MIRROR, sigma_y=10
+                        ),
+                        padding=10,
+                    )
+                ],
+                expand=True,
+            )
+            page.add(
+                ft.Stack([background, result_control], alignment=ft.alignment.center)
+            )
+            page.update()
 
     async def go_auth_page():
         page.clean()
@@ -36,52 +89,28 @@ async def profile_page(page: ft.Page, session: ClientSession):
             await go_auth_page()
             return
 
-    async def delete_favorite_coin(e): ...
+    async def delete_favorite_coin(e, row: dict):
+        access_token = await page.client_storage.get_async("access_token")
+        refresh_token = await page.client_storage.get_async("refresh_token")
+        if access_token:
+            result, tokens = await delete_coin(
+                session, access_token, refresh_token, row["Name"]
+            )
+            if result == 401:
+                await go_auth_page()
+                return
+            else:
+                result = await get_favorite(e)
+                await data_processing(e, result)
+        else:
+            await go_auth_page()
+            return
 
     async def go_profile_page(e):
-        # TODO Довести таблицу до ума
         result = await get_favorite(e)
-        if result:
-            data = []
-            main_info = {}
-            count = 1
-            for i in result:
-                main_info = result
-                data.append(main_info)
-                main_info = {}
-                count += 1
-            columns = [
-                ft.DataColumn(ft.Text(key.capitalize())) for key in data[0].keys()
-            ]
-            rows = []
-            for item in data:
-                row_cells = [ft.DataCell(ft.Text(value)) for value in item.values()]
-                rows.append(ft.DataRow(cells=row_cells))
+        await data_processing(e, result)
 
-            table.columns = columns
-            table.rows = rows
-            scrollable_table.controls = [table]
-            result_control = ft.Column(
-                [
-                    ft.Container(
-                        content=scrollable_table,
-                        expand=True,
-                        bgcolor=ft.Colors.with_opacity(0, ft.Colors.WHITE),
-                        border=ft.border.all(1, ft.Colors.WHITE),
-                        border_radius=10,
-                        blur=ft.Blur(
-                            sigma_x=10, tile_mode=ft.BlurTileMode.MIRROR, sigma_y=10
-                        ),
-                        padding=10,
-                    )
-                ],
-                expand=True,
-            )
-            page.add(
-                ft.Stack([background, result_control], alignment=ft.alignment.center)
-            )
-            page.update()
-
+    # Fields
     table = ft.DataTable(
         columns=[ft.DataColumn(ft.Text(""))],
         column_spacing=200,
@@ -89,7 +118,6 @@ async def profile_page(page: ft.Page, session: ClientSession):
         divider_thickness=1,
         data_row_max_height=30,
     )
-
     scrollable_table = ft.ListView(
         controls=[table],
         expand=True,
@@ -97,7 +125,6 @@ async def profile_page(page: ft.Page, session: ClientSession):
         padding=0,
         auto_scroll=False,
     )
-
     background = ft.Container(
         width=page.width,
         height=page.height,
@@ -106,4 +133,5 @@ async def profile_page(page: ft.Page, session: ClientSession):
         alignment=ft.alignment.center_right,
         expand=True,
     )
+
     await go_profile_page(None)

@@ -36,13 +36,12 @@ async def basic_page(page: ft.Page, session: ClientSession):
             await go_auth_page()
             return
 
-    async def add_favorite_coin(e, row):
+    async def add_favorite_coin(e, row: dict):
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         # btn_favorites.icon = ft.Icons.DONE
         # btn_favorites.disabled = True
         if access_token:
-            print("tut", row)
             result, tokens = await add_fav_coin_in_db(
                 session, access_token, refresh_token, row["id"]
             )
@@ -50,13 +49,20 @@ async def basic_page(page: ft.Page, session: ClientSession):
                 await go_auth_page()
                 return
             elif result == 409:
-                page.title = ft.Text("Ошибка")
+                alert_d.title = ft.Text("Ошибка")
                 alert_d.content = ft.Text("Монета уже добавлена")
                 page.open(alert_d)
                 return
-            page.title = ft.Text("Успех!")
-            alert_d.content = ft.Text("Монета добавлена")
-            page.open(alert_d)
+            else:
+                await page.client_storage.set_async(
+                    "access_token", tokens["access_token"]
+                )
+                await page.client_storage.set_async(
+                    "refresh_token", tokens["refresh_token"]
+                )
+                alert_d.title = ft.Text("Успех!")
+                alert_d.content = ft.Text("Монета добавлена")
+                page.open(alert_d)
         else:
             await go_auth_page()
             return
