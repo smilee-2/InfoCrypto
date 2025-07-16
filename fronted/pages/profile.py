@@ -7,6 +7,12 @@ from fronted.pages import routers
 
 async def profile_page(page: ft.Page, session: ClientSession):
     page.clean()
+    page.update()
+
+    async def go_auth_page():
+        page.clean()
+        await page.client_storage.clear_async()
+        await routers.PAGES.get("auth")(page, session)
 
     async def get_favorite(e):
         access_token = await page.client_storage.get_async("access_token")
@@ -16,9 +22,8 @@ async def profile_page(page: ft.Page, session: ClientSession):
                 session, access_token, refresh_token
             )
             if result == 401:
-                page.clean()
-                await page.client_storage.clear_async()
-                await routers.PAGES.get("auth")(page, session)
+                await go_auth_page()
+                return
             else:
                 await page.client_storage.set_async(
                     "access_token", tokens["access_token"]
@@ -28,22 +33,20 @@ async def profile_page(page: ft.Page, session: ClientSession):
                 )
                 return result
         else:
-            page.clean()
-            await page.client_storage.clear_async()
-            await routers.PAGES.get("auth")(page, session)
+            await go_auth_page()
+            return
+
+    async def delete_favorite_coin(e): ...
 
     async def go_profile_page(e):
-        result = await get_favorite_coins()
+        # TODO Довести таблицу до ума
+        result = await get_favorite(e)
         if result:
             data = []
             main_info = {}
             count = 1
             for i in result:
-                main_info["top"] = count
-                main_info["id"] = i["id"]
-                main_info["name"] = i["name"]
-                main_info["symbol"] = i["symbol"]
-                main_info["price"] = i["quote"]["USD"]["price"]
+                main_info = result
                 data.append(main_info)
                 main_info = {}
                 count += 1

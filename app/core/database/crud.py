@@ -13,7 +13,7 @@ class UserCrud:
         async with session_maker.begin() as session:
             user = UserSchemas(**user_input.model_dump())
             session.add(user)
-            return {'message': 'user was created'}
+            return {"message": "user was created"}
 
     @staticmethod
     async def get_user_by_id(user_id: int) -> UserRootModel | None:
@@ -31,7 +31,7 @@ class UserCrud:
             user = result.scalar_one_or_none()
             if user:
                 return UserRootModel.model_validate(user)
-            return {'message': 'user not found'}
+            return {"message": "user not found"}
 
     @staticmethod
     async def get_user_id(username: str) -> int | None:
@@ -61,11 +61,13 @@ class UserCrud:
             result = await session.execute(query_user)
             user = result.scalar_one_or_none()
             if user:
-                query_tasks = delete(CoinsFavoritesSchemas).where(CoinsFavoritesSchemas.user_id == user.id)
+                query_tasks = delete(CoinsFavoritesSchemas).where(
+                    CoinsFavoritesSchemas.user_id == user.id
+                )
                 await session.execute(query_tasks)
                 await session.delete(user)
-                return {'message': 'user was deleted'}
-            return {'message': 'user not found'}
+                return {"message": "user was deleted"}
+            return {"message": "user not found"}
 
     @staticmethod
     async def patch_user_email(email: EmailStr, new_email: EmailStr) -> dict[str, str]:
@@ -75,7 +77,7 @@ class UserCrud:
             result = await session.execute(query_user)
             user = result.scalar_one_or_none()
             user.email = new_email
-            return {'message': 'email has been changed'}
+            return {"message": "email has been changed"}
 
     @staticmethod
     async def patch_user_password(username: str, password: str) -> dict[str, str]:
@@ -85,7 +87,7 @@ class UserCrud:
             result = await session.execute(query_user)
             user = result.scalar_one_or_none()
             user.password = password
-            return {'message': 'password has been changed'}
+            return {"message": "password has been changed"}
 
     @staticmethod
     async def disable_user(username: str) -> dict[str, str]:
@@ -94,7 +96,7 @@ class UserCrud:
             result = await session.execute(query_user)
             user = result.scalar_one_or_none()
             user.disabled = True
-            return {'message': 'user was disabled'}
+            return {"message": "user was disabled"}
 
     @staticmethod
     async def enable_user(username: str) -> dict[str, str]:
@@ -103,13 +105,46 @@ class UserCrud:
             result = await session.execute(query_user)
             user = result.scalar_one_or_none()
             user.disabled = False
-            return {'message': 'user was enabled'}
+            return {"message": "user was enabled"}
 
 
 class CoinsCrud:
+
+    @staticmethod
+    async def get_coin_by_name(coin_name: str, user_id: int) -> str | None:
+        async with session_maker.begin() as session:
+            query = (
+                select(CoinsFavoritesSchemas)
+                .where(CoinsFavoritesSchemas.coin_name == coin_name)
+                .where(CoinsFavoritesSchemas.user_id == user_id)
+            )
+            result = await session.execute(query)
+            return result.scalar_one_or_none()
+
+    @staticmethod
+    async def get_all_f_coins(user_id: int):
+        async with session_maker.begin() as session:
+            query = select(CoinsFavoritesSchemas).where(
+                CoinsFavoritesSchemas.user_id == user_id
+            )
+            result = await session.execute(query)
+            coins = result.scalars().all()
+            return coins
+
     @staticmethod
     async def add_coin(coin_input: dict, user_id: int) -> dict[str, str]:
         async with session_maker.begin() as session:
-            coin = CoinsFavoritesSchemas(coin_name=coin_input['name'], user_id=user_id)
+            coin = CoinsFavoritesSchemas(coin_name=coin_input["name"], user_id=user_id)
             session.add(coin)
-            return {'message': 'coin was added to favorites'}
+            return {"message": "coin was added to favorites"}
+
+    @staticmethod
+    async def delete_favorite_coin(user_id: int, coin_name: str) -> dict[str, str]:
+        async with session_maker.begin() as session:
+            query = (
+                delete(CoinsFavoritesSchemas)
+                .where(CoinsFavoritesSchemas.coin_name == coin_name)
+                .where(CoinsFavoritesSchemas.user_id == user_id)
+            )
+            await session.execute(query)
+            return {"message": "coin was deleted"}

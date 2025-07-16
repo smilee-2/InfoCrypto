@@ -23,6 +23,11 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 @router.post("/register")
 async def register_new_user(user: UserModel = Depends()) -> dict[str, str]:
     """эндпоинт для регистрации"""
+    chek_user = await UserCrud.get_user_by_username(username=user.username)
+    if chek_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Пользователь уже существует"
+        )
     user_ = UserRootModel(**user.model_dump())
     hashed_password = get_password_hash(user.password)
     user_.password = hashed_password
@@ -37,6 +42,11 @@ async def create_admin(
     """эндпоинт для регистрации админа"""
     if admin_root.root != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="not admin")
+    chek_admin = await UserCrud.get_user_by_username(username=admin.username)
+    if chek_admin:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Пользователь уже существует"
+        )
     hashed_password = get_password_hash(admin.password)
     admin.password = hashed_password
     return await UserCrud.create_user(user_input=admin)
@@ -50,7 +60,7 @@ async def create_admin(
 )
 async def auth_refresh_jwt(
     user: Annotated[UserModel, Depends(get_current_user_for_refresh)],
-):
+) -> Token:
     """Обновит access token через refresh token"""
     access_token_expires = timedelta(minutes=setting_token.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expire = timedelta(days=setting_token.REFRESH_TOKEN_EXPIRE_DAYS)

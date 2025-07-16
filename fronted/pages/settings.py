@@ -6,13 +6,16 @@ from fronted.api.api import change_password, change_email
 
 async def settings_page(page: ft.Page, session: ClientSession):
     page.clean()
+    page.update()
 
     async def req_change_password(e):
         if old_password_filed.value == new_password_field.value:
-            print("password !=")
+            alert_d.content = ft.Text("Новый пароль совпадает со старым")
+            page.open(alert_d)
             return
         if "" in (old_password_filed.value, new_password_field.value):
-            print("поля пустые")
+            alert_d.content = ft.Text("Поля для смены пароля не заполнены")
+            page.open(alert_d)
             return
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
@@ -28,8 +31,9 @@ async def settings_page(page: ft.Page, session: ClientSession):
             )
 
     async def change_mail(e):
-        if "" in (new_email_field.value):
-            print("поля пустые")
+        if new_email_field.value == "":
+            alert_d.content = ft.Text("Поле email не заполнено")
+            page.open(alert_d)
             return
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
@@ -40,6 +44,13 @@ async def settings_page(page: ft.Page, session: ClientSession):
                 refresh_token,
                 {"new_email": new_email_field.value},
             )
+
+    alert_d = ft.AlertDialog(
+        title=ft.Text("Ошибка"),
+        content=ft.Text("Поля не заполнены"),
+        alignment=ft.alignment.center,
+        title_padding=ft.padding.all(25),
+    )
 
     old_password_filed = ft.TextField(
         label="Старый пароль",

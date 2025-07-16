@@ -12,9 +12,6 @@ async def lifespan(app: FastAPI):
     yield
 
 
-# TODO проверка длины пароля
-
-
 app = FastAPI(lifespan=lifespan, dependencies=[Depends(HTTP_BEARER)])
 app.include_router(router_auth)
 app.include_router(router_admin)

@@ -16,7 +16,8 @@ async def auth_page(page: ft.Page, session: ClientSession):
 
     async def login_req(e):
         if "" in (login_field.value, password_field.value):
-            print("поля пустые")
+            alert_d.content = ft.Text("Поля не заполнены")
+            page.open(alert_d)
             return
         data_user = {"username": login_field.value, "password": password_field.value}
         password_field.value = ""
@@ -24,6 +25,8 @@ async def auth_page(page: ft.Page, session: ClientSession):
         page.update()
         response = await login(data_user, session)
         if response == 401:
+            alert_d.content = ft.Text("Неверный логин или пароль")
+            page.open(alert_d)
             return
         await page.client_storage.set_async("access_token", response["access_token"])
         await page.client_storage.set_async("refresh_token", response["refresh_token"])
@@ -33,7 +36,8 @@ async def auth_page(page: ft.Page, session: ClientSession):
 
     async def register_req(e):
         if password_field.value != conf_password_field.value:
-            print("passwords !=")
+            alert_d.content = ft.Text("Пароли не совпадают")
+            page.open(alert_d)
             return
         if "" in (
             email_field.value,
@@ -41,7 +45,8 @@ async def auth_page(page: ft.Page, session: ClientSession):
             password_field.value,
             conf_password_field.value,
         ):
-            print("поля пустые")
+            alert_d.content = ft.Text("Поля не заполнены")
+            page.open(alert_d)
             return
         data_user = {
             "email": email_field.value,
@@ -52,7 +57,11 @@ async def auth_page(page: ft.Page, session: ClientSession):
         password_field.value = ""
         login_field.value = ""
         conf_password_field.value = ""
-        await register(data_user, session)
+        result = await register(data_user, session)
+        if result == 409:
+            alert_d.content = ft.Text("Пользователь уже зарегистрирован")
+            page.open(alert_d)
+            return
         await login_req(e)
 
     async def register_page(e):
@@ -99,7 +108,7 @@ async def auth_page(page: ft.Page, session: ClientSession):
         label_style=ft.TextStyle(color=ft.Colors.WHITE),
     )
     password_field = ft.TextField(
-        label="password",
+        label="Password",
         width=500,
         max_lines=900,
         password=True,
@@ -181,6 +190,12 @@ async def auth_page(page: ft.Page, session: ClientSession):
         margin=-100,
         alignment=ft.alignment.center_right,
         expand=True,
+    )
+    alert_d = ft.AlertDialog(
+        title=ft.Text("Ошибка"),
+        content=ft.Text("Поля не заполнены"),
+        alignment=ft.alignment.center,
+        title_padding=ft.padding.all(25),
     )
 
     page.update()

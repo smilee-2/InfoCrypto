@@ -16,7 +16,7 @@ class UserModel(Base):
 
 
 class UserRootModel(UserModel):
-    root: str = 'basic'
+    root: str = "basic"
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -27,9 +27,9 @@ class CoinModel(Base):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 # Класс для валидации токена
 class Token(Base):
     access_token: str
     refresh_token: str
-    token_type: str = 'Bearer'
-
+    token_type: str = "Bearer"

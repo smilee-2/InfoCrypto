@@ -7,6 +7,7 @@ from fronted.pages import routers
 
 async def profile_page(page: ft.Page, session: ClientSession):
     page.clean()
+    page.update()
 
     async def get_all_users(e):
         access_token = await page.client_storage.get_async("access_token")
