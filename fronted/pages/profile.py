@@ -12,13 +12,14 @@ async def profile_page(page: ft.Page, session: ClientSession):
     async def data_processing(e, result):
         page.clean()
         coins = result["coins"]
-        if result:
+        if coins:
             data = []
             main_info = {}
             count = 1
             for i in coins:
                 main_info["id"] = count
                 main_info["Name"] = i["coin_name"]
+                main_info["Price"] = i["price"]
                 data.append(main_info)
                 main_info = {}
                 count += 1
@@ -65,6 +66,49 @@ async def profile_page(page: ft.Page, session: ClientSession):
 
             table.columns = columns
             table.rows = rows
+            scrollable_table.controls = [table]
+            result_control = ft.Column(
+                [
+                    ft.Container(
+                        content=scrollable_table,
+                        expand=True,
+                        bgcolor=ft.Colors.with_opacity(0, ft.Colors.WHITE),
+                        border=ft.border.all(1, ft.Colors.WHITE),
+                        border_radius=10,
+                        blur=ft.Blur(
+                            sigma_x=10, tile_mode=ft.BlurTileMode.MIRROR, sigma_y=10
+                        ),
+                        padding=10,
+                    )
+                ],
+                expand=True,
+            )
+            page.add(
+                ft.Stack([background, result_control], alignment=ft.alignment.center)
+            )
+            page.update()
+        else:
+            columns = [
+                ft.DataColumn(
+                    ft.Text("Id", selectable=True),
+                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                ft.DataColumn(
+                    ft.Text("Name", selectable=True),
+                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                ft.DataColumn(
+                    ft.Text("Price", selectable=True),
+                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                ft.DataColumn(
+                    ft.IconButton(ft.Icons.DELETE_FOREVER),
+                    disabled=True,
+                    heading_row_alignment=ft.MainAxisAlignment.CENTER,
+                ),
+            ]
+            table.columns = columns
+            table.rows = None
             scrollable_table.controls = [table]
             result_control = ft.Column(
                 [
