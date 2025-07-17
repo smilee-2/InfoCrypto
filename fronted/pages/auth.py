@@ -54,9 +54,8 @@ async def auth_page(page: ft.Page, session: ClientSession):
             "password": password_field.value,
         }
         email_field.value = ""
-        password_field.value = ""
-        login_field.value = ""
         conf_password_field.value = ""
+        page.update()
         result = await register(data_user, session)
         if result == 409:
             alert_d.content = ft.Text("Пользователь уже зарегистрирован")

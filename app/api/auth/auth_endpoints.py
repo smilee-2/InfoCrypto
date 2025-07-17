@@ -24,7 +24,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 async def register_new_user(user: UserModel = Depends()) -> dict[str, str]:
     """эндпоинт для регистрации"""
     chek_user = await UserCrud.get_user_by_username(username=user.username)
-    if chek_user:
+    if isinstance(chek_user, UserRootModel):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Пользователь уже существует"
         )
@@ -43,7 +43,7 @@ async def create_admin(
     if admin_root.root != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="not admin")
     chek_admin = await UserCrud.get_user_by_username(username=admin.username)
-    if chek_admin:
+    if isinstance(chek_admin, UserRootModel):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Пользователь уже существует"
         )

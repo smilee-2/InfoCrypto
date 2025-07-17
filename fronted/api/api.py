@@ -276,10 +276,32 @@ class AdminApi:
     async def enable_user(
         session: ClientSession, access_token: str, refresh_token: str, username: str
     ):
-        """Забанить пользователя"""
+        """Разбанить пользователя"""
         answer_iof_refresh = (401, None)
         response = await session.patch(
             f"{BASE_URL}/admin/enable_user/{username}",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        if response.status == 200:
+            return await response.json(), {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            }
+        elif response.status == 401:
+            return answer_iof_refresh
+        elif response.status == 403:
+            return 403, None
+        return answer_iof_refresh
+
+    @staticmethod
+    @update_tokens_decorator
+    async def delete_user(
+        session: ClientSession, access_token: str, refresh_token: str, username: str
+    ):
+        """Удалить пользователя"""
+        answer_iof_refresh = (401, None)
+        response = await session.delete(
+            f"{BASE_URL}/admin/delete_user/{username}",
             headers={"Authorization": f"Bearer {access_token}"},
         )
         if response.status == 200:

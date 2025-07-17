@@ -102,7 +102,22 @@ async def admin_page(page: ft.Page, session: ClientSession):
             return
 
     async def delete_user(e, row: dict):
-        print("asdasdw")
+        access_token = await page.client_storage.get_async("access_token")
+        refresh_token = await page.client_storage.get_async("refresh_token")
+        if access_token:
+            result, tokens = await AdminApi.delete_user(
+                session, access_token, refresh_token, row["username"]
+            )
+            if result == 401:
+                await go_auth_page()
+                return
+            else:
+                result = await get_users(e)
+                await data_processing(e, result)
+                page.update()
+        else:
+            await go_auth_page()
+            return
 
     async def data_processing(e, result):
         data = []
