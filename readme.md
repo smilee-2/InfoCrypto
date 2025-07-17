@@ -1,44 +1,84 @@
-# <p style="text-align: center;"> InfoCrypto
-____
-### About:
-#### __Трекер криптовалют__
- - Простой сайт для отслеживания криптовалют по api, структура:
-   - страница авторизации
-   - главная страница криптовалют
-   - личный кабинет пользователя
-   - Админ панель
- - Авторизация через jwt токены
- - Админ панель позволяющая управлять пользователями
+# InfoCrypto 📊
 
 
-___
-### <p style="text-align: center;"> Login page
 
+> 📌 Простой трекер криптовалют с авторизацией, профилем пользователя и админ-панелью.
+
+---
+
+## 🔍 Описание
+
+**InfoCrypto** — это веб-приложение для отслеживания курса криптовалют.  
+Проект реализован с использованием JWT-авторизации и позволяет:
+- Просматривать актуальные данные о популярных монетах
+- Регистрироваться / входить в аккаунт
+- Управлять своими настройками
+- Администраторам — управлять пользователями
+
+---
+
+## 🧩 Функционал
+
+- [x] Страница регистрации
+- [x] Страница авторизации
+- [x] Главная страница с данными по криптовалютам
+- [x] Личный кабинет пользователя
+- [x] Админ-панель
+- [x] Настройки профиля
+- [x] Авторизация через JWT-токены
+
+---
+
+## 📸 Скриншоты
+
+### 📁 Login Page
 <p align="center">
-  <img width="1000" height="500" src="imgs/img_login.png">
+  <img width="700" src="imgs/img_login.png" alt="Login Page">
 </p>
 
-### <p style="text-align: center;"> Register page
+### 📁 Register Page
 <p align="center">
-  <img width="1000" height="500" src="imgs/img_reg.png">
+  <img width="700" src="imgs/img_reg.png" alt="Register Page">
 </p>
 
-### <p style="text-align: center;"> Main page
+### 📊 Main Page
 <p align="center">
-  <img width="1000" height="500" src="imgs/img_bas.png">
+  <img width="700" src="imgs/img_bas.png" alt="Main Page">
 </p>
 
-### <p style="text-align: center;"> Profile page
+### 👤 Profile Page
 <p align="center">
-  <img width="1000" height="500" src="imgs/img_profile.png">
+  <img width="700" src="imgs/img_profile.png" alt="Profile Page">
 </p>
 
-### <p style="text-align: center;"> Admin page
+### ⚙️ Settings Page
 <p align="center">
-  <img width="1000" height="500" src="imgs/img_admin.png">
+  <img width="700" src="imgs/img_sett.png" alt="Settings Page">
 </p>
 
-### <p style="text-align: center;"> Settings page
+### 🛠 Admin Panel
 <p align="center">
-  <img width="1000" height="500" src="imgs/img_sett.png">
+  <img width="700" src="imgs/img_admin.png" alt="Admin Panel">
 </p>
+
+---
+
+## 🛠 Технологии
+
+- Python
+- FastAPI
+- Redis
+- Flet Framework (веб-интерфейс)
+- PostgreSQL
+- SQLAlchemy ORM
+- JWT (JSON Web Tokens)
+- AsyncIO
+- aiohttp
+
+---
+
+## 🚀 Как запустить
+
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/smilee-2/InfoCrypto.git 
