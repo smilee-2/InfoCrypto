@@ -33,6 +33,11 @@ ___
   <img width="1000" height="500" src="imgs/img_profile.png">
 </p>
 
+### <p style="text-align: center;"> Admin page
+<p align="center">
+  <img width="1000" height="500" src="imgs/img_admin.png">
+</p>
+
 ### <p style="text-align: center;"> Settings page
 <p align="center">
   <img width="1000" height="500" src="imgs/img_sett.png">
