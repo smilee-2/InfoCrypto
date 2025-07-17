@@ -4,7 +4,7 @@ import flet as ft
 import jwt
 from aiohttp import ClientSession
 
-from fronted.api.api import get_hundred, add_fav_coin_in_db
+from fronted.api.api import CoinsApi
 from fronted.pages import routers
 
 
@@ -118,7 +118,9 @@ async def basic_page(page: ft.Page, session: ClientSession):
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
-            result, tokens = await get_hundred(session, access_token, refresh_token)
+            result, tokens = await CoinsApi.get_hundred(
+                session, access_token, refresh_token
+            )
             if result == 401:
                 await go_auth_page()
                 return
@@ -140,7 +142,7 @@ async def basic_page(page: ft.Page, session: ClientSession):
         # btn_favorites.icon = ft.Icons.DONE
         # btn_favorites.disabled = True
         if access_token:
-            result, tokens = await add_fav_coin_in_db(
+            result, tokens = await CoinsApi.add_fav_coin_in_db(
                 session, access_token, refresh_token, row["id"]
             )
             if result == 401:

@@ -1,7 +1,7 @@
 import flet as ft
 from aiohttp import ClientSession
 
-from fronted.api.api import change_password, change_email
+from fronted.api.api import SettingsApi
 from fronted.pages import routers
 
 
@@ -15,19 +15,20 @@ async def settings_page(page: ft.Page, session: ClientSession):
         await routers.PAGES.get("auth")(page, session)
 
     async def req_change_password(e):
+        if "" in (old_password_filed.value, new_password_field.value):
+            alert_d.content = ft.Text("Поля для смены пароля не заполнены")
+            alert_d.title = ft.Text("Ошибка")
+            page.open(alert_d)
+            return
         if old_password_filed.value == new_password_field.value:
             alert_d.content = ft.Text("Новый пароль совпадает со старым")
             alert_d.title = ft.Text("Ошибка")
             page.open(alert_d)
             return
-        if "" in (old_password_filed.value, new_password_field.value):
-            alert_d.content = ft.Text("Поля для смены пароля не заполнены")
-            page.open(alert_d)
-            return
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
-            result, tokens = await change_password(
+            result, tokens = await SettingsApi.change_password(
                 session,
                 access_token,
                 refresh_token,
@@ -42,6 +43,7 @@ async def settings_page(page: ft.Page, session: ClientSession):
             else:
                 old_password_filed.value = ""
                 new_password_field.value = ""
+                page.update()
                 alert_d.content = ft.Text("Пароль изменен")
                 alert_d.title = ft.Text("Успешно!")
                 page.open(alert_d)
@@ -55,18 +57,18 @@ async def settings_page(page: ft.Page, session: ClientSession):
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
-            result, tokens = await change_email(
+            result, tokens = await SettingsApi.change_email(
                 session,
                 access_token,
                 refresh_token,
                 {"new_email": new_email_field.value},
             )
-            new_email_field.value = ""
             if result == 401:
                 await go_auth_page()
                 return
             else:
                 new_email_field.value = ""
+                page.update()
                 alert_d.content = ft.Text("Почта изменена")
                 alert_d.title = ft.Text("Успешно!")
                 page.open(alert_d)

@@ -1,7 +1,7 @@
 import flet as ft
 from aiohttp import ClientSession
 
-from fronted.api.api import get_favorite_coins, delete_coin, get_fav_one_coin
+from fronted.api.api import CoinsApi
 from fronted.pages import routers
 
 
@@ -142,7 +142,7 @@ async def profile_page(page: ft.Page, session: ClientSession):
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
-            result, tokens = await get_favorite_coins(
+            result, tokens = await CoinsApi.get_favorite_coins(
                 session, access_token, refresh_token
             )
             if result == 401:
@@ -164,7 +164,7 @@ async def profile_page(page: ft.Page, session: ClientSession):
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
-            result, tokens = await delete_coin(
+            result, tokens = await CoinsApi.delete_coin(
                 session, access_token, refresh_token, row["Name"]
             )
             if result == 401:
@@ -181,7 +181,7 @@ async def profile_page(page: ft.Page, session: ClientSession):
         access_token = await page.client_storage.get_async("access_token")
         refresh_token = await page.client_storage.get_async("refresh_token")
         if access_token:
-            result, tokens = await get_fav_one_coin(
+            result, tokens = await CoinsApi.get_fav_one_coin(
                 session, access_token, refresh_token, coin_id
             )
             if result == 401:
