@@ -1,7 +1,7 @@
-import asyncio
-from os import access
+import base64
 
 import flet as ft
+import jwt
 from aiohttp import ClientSession
 
 from fronted.api.api import get_hundred, add_fav_coin_in_db
@@ -16,6 +16,28 @@ async def basic_page(page: ft.Page, session: ClientSession):
         page.clean()
         await page.client_storage.clear_async()
         await routers.PAGES.get("auth")(page, session)
+
+    async def go_basic_page(e):
+        page.clean()
+        page.update()
+        result = await get_top_coins()
+        result_control = await data_processing(e, result)
+        page.add(ft.Stack([background, result_control], alignment=ft.alignment.center))
+        page.update()
+
+    async def go_profile(e):
+        await routers.PAGES.get("profile")(page, session)
+
+    async def logout(e):
+        await page.client_storage.clear_async()
+        page.appbar = None
+        await routers.PAGES.get("auth")(page, session)
+
+    async def go_settings(e):
+        await routers.PAGES.get("settings")(page, session)
+
+    async def go_admin_page(e):
+        await routers.PAGES.get("admin")(page, session)
 
     async def data_processing(e, result):
         data = []
@@ -143,27 +165,9 @@ async def basic_page(page: ft.Page, session: ClientSession):
             await go_auth_page()
             return
 
-    async def go_basic_page(e):
-        page.clean()
-        page.update()
-        result = await get_top_coins()
-        result_control = await data_processing(e, result)
-        page.add(ft.Stack([background, result_control], alignment=ft.alignment.center))
-        page.update()
-
-    async def go_profile(e):
-        await routers.PAGES.get("profile")(page, session)
-
-    async def logout(e):
-        await page.client_storage.clear_async()
-        page.appbar = None
-        await routers.PAGES.get("auth")(page, session)
-
-    async def go_settings(e):
-        await routers.PAGES.get("settings")(page, session)
-
     # Fields
-    page.appbar = ft.AppBar(
+
+    main_appbar = ft.AppBar(
         leading=ft.Icon(ft.Icons.MONETIZATION_ON),
         leading_width=40,
         title=ft.Text("InfoCrypto"),
@@ -180,6 +184,8 @@ async def basic_page(page: ft.Page, session: ClientSession):
             ),
         ],
     )
+
+    page.appbar = main_appbar
     table = ft.DataTable(
         columns=[ft.DataColumn(ft.Text(""))],
         column_spacing=200,
@@ -210,5 +216,20 @@ async def basic_page(page: ft.Page, session: ClientSession):
         alignment=ft.alignment.center,
         title_padding=ft.padding.all(25),
     )
+    access_token = await page.client_storage.get_async("access_token")
+    if access_token:
+        root = jwt.decode(access_token, options={"verify_signature": False})["root"]
+        if root == "admin":
+            main_appbar.actions = [
+                ft.IconButton(ft.Icons.HOME, on_click=go_basic_page),
+                ft.IconButton(ft.Icons.PERSON, on_click=go_profile),
+                ft.IconButton(ft.Icons.ADMIN_PANEL_SETTINGS, on_click=go_admin_page),
+                ft.PopupMenuButton(
+                    items=[
+                        ft.PopupMenuItem(text="Settings", on_click=go_settings),
+                        ft.PopupMenuItem(text="Logout", on_click=logout),
+                    ]
+                ),
+            ]
 
     await go_basic_page(None)

@@ -16,17 +16,30 @@ class UserCrud:
             return {"message": "user was created"}
 
     @staticmethod
-    async def get_user_by_id(user_id: int) -> UserRootModel | None:
+    async def get_user_by_id(user_id: int) -> UserRootModel | dict[str, str]:
         """Вернет пользователя по id"""
         async with session_maker.begin() as session:
             user = await session.get(UserSchemas, user_id)
-            return UserRootModel.model_validate(user)
+            if user:
+                return UserRootModel.model_validate(user)
+            return {"message": "user not found"}
 
     @staticmethod
     async def get_user_by_username(username: str) -> UserRootModel | dict[str, str]:
         """Получение пользователя по имени"""
         async with session_maker.begin() as session:
             query = select(UserSchemas).where(UserSchemas.username == username)
+            result = await session.execute(query)
+            user = result.scalar_one_or_none()
+            if user:
+                return UserRootModel.model_validate(user)
+            return {"message": "user not found"}
+
+    @staticmethod
+    async def get_user_by_email(email: EmailStr) -> UserRootModel | dict[str, str]:
+        """Получение пользователя по email"""
+        async with session_maker.begin() as session:
+            query = select(UserSchemas).where(UserSchemas.email == email)
             result = await session.execute(query)
             user = result.scalar_one_or_none()
             if user:

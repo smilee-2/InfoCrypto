@@ -21,6 +21,15 @@ class UserRootModel(UserModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class UserReturnModel(Base):
+    email: EmailStr
+    username: str
+    root: str
+    disable: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class CoinModel(Base):
     coin_name: str
     user_id: int

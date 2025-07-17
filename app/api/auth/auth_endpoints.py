@@ -59,17 +59,17 @@ async def create_admin(
     dependencies=[Depends(HTTP_BEARER)],
 )
 async def auth_refresh_jwt(
-    user: Annotated[UserModel, Depends(get_current_user_for_refresh)],
+    user: Annotated[UserRootModel, Depends(get_current_user_for_refresh)],
 ) -> Token:
     """Обновит access token через refresh token"""
     access_token_expires = timedelta(minutes=setting_token.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expire = timedelta(days=setting_token.REFRESH_TOKEN_EXPIRE_DAYS)
     access_token = create_access_token(
-        data={"sub": user.username, "type": "access"},
+        data={"sub": user.username, "type": "access", "root": user.root},
         expires_delta=access_token_expires,
     )
     refresh_token = create_refresh_token(
-        data={"sub": user.username, "type": "refresh"},
+        data={"sub": user.username, "type": "refresh", "root": user.root},
         expires_delta=refresh_token_expire,
     )
     return Token(access_token=access_token, refresh_token=refresh_token)
@@ -97,11 +97,11 @@ async def login_for_access_token(
     refresh_token_expire = timedelta(days=setting_token.REFRESH_TOKEN_EXPIRE_DAYS)
 
     access_token = create_access_token(
-        data={"sub": user.username, "type": "access"},
+        data={"sub": user.username, "type": "access", "root": user.root},
         expires_delta=access_token_expires,
     )
     refresh_token = create_refresh_token(
-        data={"sub": user.username, "type": "refresh"},
+        data={"sub": user.username, "type": "refresh", "root": user.root},
         expires_delta=refresh_token_expire,
     )
 
