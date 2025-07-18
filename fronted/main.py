@@ -26,4 +26,10 @@ async def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(target=main, view=ft.AppView.WEB_BROWSER, assets_dir="../assets")
+    ft.app(
+        target=main,
+        view=ft.AppView.WEB_BROWSER,
+        assets_dir="../assets",
+        port=8220,
+        host="0.0.0.0",
+    )

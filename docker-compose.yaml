@@ -1,0 +1,35 @@
+services:
+
+  app_back:
+    build:
+      dockerfile: ./Dockerfile.back
+      context: ./
+    ports:
+      - "5050:8000"
+
+  app_front:
+    build:
+      dockerfile: ./Dockerfile.front
+      context: ./
+    environment:
+      URL: "http://app_back:8000"
+    ports:
+      - "3030:8220"
+
+  pg:
+    image: postgres
+    environment:
+      POSTGRES_DB: dbcoins
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5555:80"

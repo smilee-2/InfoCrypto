@@ -1,4 +1,4 @@
 .venv
 .idea
 .env
-database/database.db
+ids

@@ -20,7 +20,9 @@ class SettingDatabase(BaseSettings):
 
     @property
     def database_url_asyncpg(self):
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        # postgres:123@pg:5432
+        # {self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}
+        return f"postgresql+asyncpg://postgres:123@pg:5432/{self.DB_NAME}"
 
 
 class SettingCMC(BaseSettings):
